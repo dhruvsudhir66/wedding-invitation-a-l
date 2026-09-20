@@ -1,39 +1,204 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Reveal from "@/components/ui/Reveal";
 
-const target = new Date("2026-11-15T11:00:00+05:30").getTime();
+const TARGET_TIME = new Date("2026-11-15T11:00:00+05:30").getTime();
 
-function getRemaining() {
-  const distance = Math.max(0, target - Date.now());
+type RemainingTime = {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+};
+
+function getRemaining(now = Date.now()): RemainingTime {
+  const distance = Math.max(0, TARGET_TIME - now);
 
   return {
-    days: Math.floor(distance / 86400000),
-    hours: Math.floor((distance / 3600000) % 24),
-    minutes: Math.floor((distance / 60000) % 60),
-    seconds: Math.floor((distance / 1000) % 60),
+    days: Math.floor(distance / 86_400_000),
+    hours: Math.floor((distance / 3_600_000) % 24),
+    minutes: Math.floor((distance / 60_000) % 60),
+    seconds: Math.floor((distance / 1_000) % 60),
   };
 }
 
-export default function Countdown() {
-  const [time, setTime] = useState(getRemaining());
+/**
+ * The timer is isolated from the decorative section.
+ * Only this small component re-renders every second.
+ *
+ * It also:
+ * - avoids hydration mismatches
+ * - aligns updates to the real second boundary
+ * - pauses while the tab is hidden
+ * - avoids Framer Motion remounts/filter animations for every second
+ */
+function CountdownTimer() {
+  const [time, setTime] = useState<RemainingTime | null>(null);
 
   useEffect(() => {
-    const id = window.setInterval(() => {
-      setTime(getRemaining());
-    }, 1000);
+    let intervalId: number | undefined;
+    let timeoutId: number | undefined;
 
-    return () => window.clearInterval(id);
+    const update = () => {
+      setTime(getRemaining());
+    };
+
+    const start = () => {
+      if (intervalId !== undefined) {
+        window.clearInterval(intervalId);
+      }
+
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+
+      update();
+
+      // Wait until the next second boundary instead of drifting.
+      const delay = 1000 - (Date.now() % 1000);
+
+      timeoutId = window.setTimeout(() => {
+        update();
+
+        intervalId = window.setInterval(update, 1000);
+      }, delay);
+    };
+
+    const stop = () => {
+      if (intervalId !== undefined) {
+        window.clearInterval(intervalId);
+        intervalId = undefined;
+      }
+
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+        timeoutId = undefined;
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      stop();
+
+      if (!document.hidden) {
+        start();
+      }
+    };
+
+    start();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      stop();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, []);
 
+  const safeTime = time ?? {
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  };
+
   const values = [
-    ["Days", time.days],
-    ["Hours", time.hours],
-    ["Minutes", time.minutes],
-    ["Seconds", time.seconds],
+    ["Days", safeTime.days],
+    ["Hours", safeTime.hours],
+    ["Minutes", safeTime.minutes],
+    ["Seconds", safeTime.seconds],
   ] as const;
+
+  return (
+    <div
+      className="
+        relative
+        flex
+        items-center
+        justify-center
+        gap-3
+        sm:gap-6
+        md:gap-10
+      "
+      aria-label="Countdown to 15 November 2026"
+    >
+      {values.map(([label, value], index) => (
+        <div key={label} className="flex items-center">
+          <div className="flex flex-col items-center">
+            <div className="relative min-w-[54px] overflow-hidden sm:min-w-[70px] md:min-w-[90px]">
+              <span
+                className="
+                  block
+                  font-display
+                  text-[42px]
+                  leading-none
+                  tracking-[-0.06em]
+                  tabular-nums
+                  text-[#691638]
+                  sm:text-[52px]
+                  md:text-[64px]
+                "
+              >
+                {String(value).padStart(2, "0")}
+              </span>
+            </div>
+
+            <span
+              className="
+                mt-3
+                text-[7px]
+                font-medium
+                uppercase
+                tracking-[0.24em]
+                text-[#691638]
+                sm:text-[8px]
+                md:text-[9px]
+              "
+            >
+              {label}
+            </span>
+          </div>
+
+          {index < values.length - 1 && (
+            <span
+              className="
+                mx-1
+                mb-5
+                font-display
+                text-xl
+                font-light
+                text-[#C890A7]/60
+                sm:mx-2
+                sm:text-2xl
+                md:mx-4
+                md:text-3xl
+              "
+              aria-hidden="true"
+            >
+              ·
+            </span>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function Countdown() {
+  const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener("change", update);
+
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  const shouldAnimate = !reduceMotion && !isMobile;
 
   return (
     <section
@@ -41,6 +206,7 @@ export default function Countdown() {
         relative
         isolate
         overflow-hidden
+        [contain:layout_paint]
         bg-[#f8ebe6]
         py-16
         text-[#691638]
@@ -65,14 +231,18 @@ export default function Countdown() {
           -translate-y-1/2
           rounded-full
           bg-[#C890A7]/[0.12]
-          blur-[110px]
+          blur-[50px] sm:blur-[70px] sm:blur-[110px]
           sm:h-[520px]
           sm:w-[520px]
         "
-        animate={{
-          scale: [1, 1.08, 1],
-          opacity: [0.55, 0.85, 0.55],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                scale: [1, 1.08, 1],
+                opacity: [0.55, 0.85, 0.55],
+              }
+            : undefined
+        }
         transition={{
           duration: 9,
           repeat: Infinity,
@@ -91,13 +261,17 @@ export default function Countdown() {
           w-72
           rounded-full
           bg-[#C890A7]/[0.08]
-          blur-[100px]
+          blur-[65px] sm:blur-[100px]
         "
-        animate={{
-          x: [0, 35, 0],
-          y: [0, -20, 0],
-          opacity: [0.4, 0.65, 0.4],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                x: [0, 35, 0],
+                y: [0, -20, 0],
+                opacity: [0.4, 0.65, 0.4],
+              }
+            : undefined
+        }
         transition={{
           duration: 13,
           repeat: Infinity,
@@ -116,13 +290,17 @@ export default function Countdown() {
           w-80
           rounded-full
           bg-[#C890A7]/[0.07]
-          blur-[110px]
+          blur-[50px] sm:blur-[70px] sm:blur-[110px]
         "
-        animate={{
-          x: [0, -30, 0],
-          y: [0, 20, 0],
-          opacity: [0.35, 0.6, 0.35],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                x: [0, -30, 0],
+                y: [0, 20, 0],
+                opacity: [0.35, 0.6, 0.35],
+              }
+            : undefined
+        }
         transition={{
           duration: 15,
           repeat: Infinity,
@@ -273,7 +451,7 @@ export default function Countdown() {
       ===================================================== */}
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {Array.from({ length: 18 }, (_, index) => {
+        {Array.from({ length: isMobile ? 7 : 12 }, (_, index) => {
           const left = `${4 + ((index * 41) % 92)}%`;
           const top = `${7 + ((index * 29) % 86)}%`;
 
@@ -292,12 +470,20 @@ export default function Countdown() {
                 width: index % 4 === 0 ? 4 : 2.5,
                 height: index % 4 === 0 ? 4 : 2.5,
               }}
-              animate={{
-                opacity: [0, 0.5, 0.15, 0],
-                y: [0, -18, -35],
-                x: [0, index % 2 === 0 ? 8 : -8, index % 2 === 0 ? -3 : 3],
-                scale: [0.7, 1.2, 0.8],
-              }}
+              animate={
+                shouldAnimate
+                  ? {
+                      opacity: [0, 0.5, 0.15, 0],
+                      y: [0, -18, -35],
+                      x: [
+                        0,
+                        index % 2 === 0 ? 8 : -8,
+                        index % 2 === 0 ? -3 : 3,
+                      ],
+                      scale: [0.7, 1.2, 0.8],
+                    }
+                  : undefined
+              }
               transition={{
                 duration: 5 + (index % 5),
                 delay: index * 0.3,
@@ -327,10 +513,14 @@ export default function Countdown() {
           sm:h-72
           sm:w-72
         "
-        animate={{
-          rotate: [0, 8, 0],
-          scale: [1, 1.04, 1],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                rotate: [0, 8, 0],
+                scale: [1, 1.04, 1],
+              }
+            : undefined
+        }
         transition={{
           duration: 12,
           repeat: Infinity,
@@ -352,10 +542,14 @@ export default function Countdown() {
           sm:h-72
           sm:w-72
         "
-        animate={{
-          rotate: [0, -8, 0],
-          scale: [1, 1.04, 1],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                rotate: [0, -8, 0],
+                scale: [1, 1.04, 1],
+              }
+            : undefined
+        }
         transition={{
           duration: 14,
           repeat: Infinity,
@@ -549,97 +743,13 @@ export default function Countdown() {
                   -translate-y-1/2
                   rounded-full
                   bg-[#C890A7]/[0.10]
-                  blur-[70px]
+                  blur-[50px] sm:blur-[70px]
                   sm:h-40
                 "
               />
 
               {/* Timer */}
-              <div
-                className="
-                  relative
-                  flex
-                  items-center
-                  justify-center
-                  gap-3
-                  sm:gap-6
-                  md:gap-10
-                "
-              >
-                {values.map(([label, value], index) => (
-                  <div key={label} className="flex items-center">
-                    <div className="flex flex-col items-center">
-                      {/* Number */}
-                      <div className="relative min-w-[54px] overflow-hidden sm:min-w-[70px] md:min-w-[90px]">
-                        <motion.div
-                          key={value}
-                          initial={{
-                            opacity: 0,
-                            y: 16,
-                            filter: "blur(4px)",
-                          }}
-                          animate={{
-                            opacity: 1,
-                            y: 0,
-                            filter: "blur(0px)",
-                          }}
-                          transition={{
-                            duration: 0.4,
-                            ease: [0.22, 1, 0.36, 1],
-                          }}
-                          className="
-                            font-display
-                            text-[42px]
-                            leading-none
-                            tracking-[-0.06em]
-                            text-[#691638]
-                            sm:text-[52px]
-                            md:text-[64px]
-                          "
-                        >
-                          {String(value).padStart(2, "0")}
-                        </motion.div>
-                      </div>
-
-                      {/* Label */}
-                      <span
-                        className="
-                          mt-3
-                          text-[7px]
-                          font-medium
-                          uppercase
-                          tracking-[0.24em]
-                          text-[#691638]
-                          sm:text-[8px]
-                          md:text-[9px]
-                        "
-                      >
-                        {label}
-                      </span>
-                    </div>
-
-                    {/* Separator */}
-                    {index < values.length - 1 && (
-                      <span
-                        className="
-                          mx-1
-                          mb-5
-                          font-display
-                          text-xl
-                          font-light
-                          text-[#C890A7]/60
-                          sm:mx-2
-                          sm:text-2xl
-                          md:mx-4
-                          md:text-3xl
-                        "
-                      >
-                        ·
-                      </span>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <CountdownTimer />
             </motion.div>
 
             {/* =================================================
@@ -710,10 +820,14 @@ export default function Countdown() {
                 <span className="h-px w-10 bg-[#C890A7]/20" />
 
                 <motion.span
-                  animate={{
-                    scale: [0.85, 1, 0.85],
-                    opacity: [0.45, 0.9, 0.45],
-                  }}
+                  animate={
+                    shouldAnimate
+                      ? {
+                          scale: [0.85, 1, 0.85],
+                          opacity: [0.45, 0.9, 0.45],
+                        }
+                      : undefined
+                  }
                   transition={{
                     duration: 4,
                     repeat: Infinity,

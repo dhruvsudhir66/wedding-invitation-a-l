@@ -1,7 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, CalendarDays } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 const bokehLights = [
   {
@@ -72,13 +74,28 @@ const particles = Array.from({ length: 42 }, (_, index) => ({
 }));
 
 export default function Hero() {
+  const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener("change", update);
+
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  const shouldAnimate = !reduceMotion;
+
   return (
     <section
       id="home"
       className="
         relative
         flex
-        min-h-[92vh]
+        min-h-[100svh]
         items-end
         overflow-hidden
         bg-[#e5ded6]
@@ -89,16 +106,17 @@ export default function Hero() {
       ========================================================= */}
 
       <div className="absolute inset-0">
-        <img
-          src="/images/hero.jpeg"
+        <Image
+          src="/images/hero.webp"
           alt=""
+          fill
+          priority
+          quality={72}
+          sizes="100vw"
           className="
-            h-full
-            w-full
             object-cover
             object-center
-            blur-[1px]
-            scale-[1.01]
+            scale-[1.005]
           "
         />
 
@@ -177,7 +195,7 @@ export default function Hero() {
             -translate-x-1/2
             rounded-full
             bg-[#f4d7b5]/[0.18]
-            blur-[105px]
+            blur-[50px] sm:blur-[70px] sm:blur-[105px]
           "
         />
 
@@ -202,7 +220,7 @@ export default function Hero() {
             w-40
             rounded-full
             bg-[#fff0d5]/[0.22]
-            blur-[65px]
+            blur-[45px] sm:blur-[65px]
           "
         />
 
@@ -211,40 +229,50 @@ export default function Hero() {
         ======================================================= */}
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {bokehLights.map((light, index) => (
-            <motion.span
-              key={index}
-              className="
+          {bokehLights
+            .slice(0, isMobile ? 3 : bokehLights.length)
+            .map((light, index) => (
+              <motion.span
+                key={index}
+                className="
                 absolute
                 rounded-full
                 bg-white
                 blur-2xl
               "
-              style={{
-                left: light.left,
-                top: light.top,
-                width: light.size,
-                height: light.size,
-              }}
-              animate={{
-                x: [0, 18, -12, 0],
-                y: [0, -18, 10, 0],
-                scale: [1, 1.16, 0.9, 1],
-                opacity: [
-                  light.opacity * 0.55,
-                  light.opacity,
-                  light.opacity * 0.7,
-                  light.opacity * 0.55,
-                ],
-              }}
-              transition={{
-                duration: light.duration,
-                delay: light.delay,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
+                style={{
+                  left: light.left,
+                  top: light.top,
+                  width: light.size,
+                  height: light.size,
+                }}
+                animate={
+                  shouldAnimate
+                    ? {
+                        x: [0, 18, -12, 0],
+                        y: [0, -18, 10, 0],
+                        scale: [1, 1.16, 0.9, 1],
+                        opacity: [
+                          light.opacity * 0.55,
+                          light.opacity,
+                          light.opacity * 0.7,
+                          light.opacity * 0.55,
+                        ],
+                      }
+                    : undefined
+                }
+                transition={
+                  reduceMotion
+                    ? undefined
+                    : {
+                        duration: light.duration,
+                        delay: light.delay,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }
+                }
+              />
+            ))}
         </div>
 
         {/* =======================================================
@@ -297,7 +325,7 @@ export default function Hero() {
             w-28
             rounded-full
             bg-[#f8dfbc]/20
-            blur-3xl
+            blur-2xl sm:blur-3xl
           "
         />
 
@@ -306,16 +334,24 @@ export default function Hero() {
         ======================================================= */}
 
         <motion.div
-          animate={{
-            x: ["-120%", "130%"],
-            opacity: [0, 0.2, 0],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            repeatDelay: 5,
-            ease: "easeInOut",
-          }}
+          animate={
+            shouldAnimate && !isMobile
+              ? {
+                  x: ["-120%", "130%"],
+                  opacity: [0, 0.2, 0],
+                }
+              : undefined
+          }
+          transition={
+            reduceMotion
+              ? undefined
+              : {
+                  duration: 15,
+                  repeat: Infinity,
+                  repeatDelay: 5,
+                  ease: "easeInOut",
+                }
+          }
           className="
             pointer-events-none
             absolute
@@ -328,7 +364,7 @@ export default function Hero() {
             from-transparent
             via-[#fff8eb]/45
             to-transparent
-            blur-3xl
+            blur-2xl sm:blur-3xl
           "
         />
 
@@ -337,16 +373,24 @@ export default function Hero() {
         ======================================================= */}
 
         <motion.div
-          animate={{
-            x: ["-70%", "100%"],
-            opacity: [0, 0.08, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            repeatDelay: 10,
-            ease: "easeInOut",
-          }}
+          animate={
+            shouldAnimate && !isMobile
+              ? {
+                  x: ["-70%", "100%"],
+                  opacity: [0, 0.08, 0],
+                }
+              : undefined
+          }
+          transition={
+            reduceMotion
+              ? undefined
+              : {
+                  duration: 20,
+                  repeat: Infinity,
+                  repeatDelay: 10,
+                  ease: "easeInOut",
+                }
+          }
           className="
             pointer-events-none
             absolute
@@ -359,7 +403,7 @@ export default function Hero() {
             from-transparent
             via-[#e8c99f]/35
             to-transparent
-            blur-[70px]
+            blur-[50px] sm:blur-[70px]
           "
         />
 
@@ -412,7 +456,7 @@ export default function Hero() {
         ======================================================= */}
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {particles.map((particle, index) => (
+          {particles.slice(0, isMobile ? 12 : 24).map((particle, index) => (
             <motion.span
               key={index}
               className="
@@ -427,18 +471,35 @@ export default function Hero() {
                 width: particle.size,
                 height: particle.size,
               }}
-              animate={{
-                opacity: [0, particle.opacity, particle.opacity * 0.65, 0],
-                y: [0, -18, -34],
-                x: [0, index % 2 === 0 ? 7 : -7, index % 2 === 0 ? -3 : 3],
-                scale: [0.65, 1.25, 0.8],
-              }}
-              transition={{
-                duration: particle.duration,
-                delay: particle.delay,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
+              animate={
+                shouldAnimate
+                  ? {
+                      opacity: [
+                        0,
+                        particle.opacity,
+                        particle.opacity * 0.65,
+                        0,
+                      ],
+                      y: [0, -18, -34],
+                      x: [
+                        0,
+                        index % 2 === 0 ? 7 : -7,
+                        index % 2 === 0 ? -3 : 3,
+                      ],
+                      scale: [0.65, 1.25, 0.8],
+                    }
+                  : undefined
+              }
+              transition={
+                reduceMotion
+                  ? undefined
+                  : {
+                      duration: particle.duration,
+                      delay: particle.delay,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+              }
             />
           ))}
         </div>
@@ -510,7 +571,7 @@ export default function Hero() {
           HERO CONTENT
       ========================================================= */}
 
-      <div className="container-wedding relative z-10 pb-16 pt-36 text-white md:pb-24">
+      <div className="container-wedding relative z-10 px-5 pb-12 pt-28 text-white sm:px-6 sm:pb-16 sm:pt-32 md:pb-24 md:pt-36">
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

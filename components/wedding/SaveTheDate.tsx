@@ -869,7 +869,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               }
             >
               <Image
-                src="/images/save-date.jpeg"
+                src="/images/save-date.webp"
                 alt="Wedding table setting"
                 fill
                 priority
