@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState } from "react";
 import Reveal from "@/components/ui/Reveal";
 import SectionHeading from "@/components/ui/SectionHeading";
 
@@ -33,6 +34,19 @@ const particles = Array.from({ length: 26 }, (_, index) => ({
 }));
 
 export default function Couple() {
+  const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mediaQuery.matches);
+    update();
+    mediaQuery.addEventListener("change", update);
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  const shouldAnimate = !reduceMotion && !isMobile;
+
   return (
     <section
       id="couple"
@@ -40,6 +54,7 @@ export default function Couple() {
         relative
         isolate
         overflow-hidden
+        [contain:layout_paint]
         bg-[var(--off-white)]
         section-pad
       "
@@ -59,12 +74,16 @@ export default function Couple() {
           -translate-x-1/2
           rounded-full
           bg-[#c9aaa7]/[0.045]
-          blur-[90px]
+          blur-[60px] sm:blur-[90px]
         "
-        animate={{
-          scale: [1, 1.05, 1],
-          opacity: [0.45, 0.7, 0.45],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                scale: [1, 1.05, 1],
+                opacity: [0.45, 0.7, 0.45],
+              }
+            : undefined
+        }
         transition={{
           duration: 12,
           repeat: Infinity,
@@ -82,13 +101,17 @@ export default function Couple() {
           w-72
           rounded-full
           bg-[#d7b8ae]/[0.04]
-          blur-[75px]
+          blur-[50px] sm:blur-[75px]
         "
-        animate={{
-          x: [0, 25, 0],
-          y: [0, -14, 0],
-          opacity: [0.35, 0.65, 0.35],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                x: [0, 25, 0],
+                y: [0, -14, 0],
+                opacity: [0.35, 0.65, 0.35],
+              }
+            : undefined
+        }
         transition={{
           duration: 14,
           repeat: Infinity,
@@ -106,13 +129,17 @@ export default function Couple() {
           w-80
           rounded-full
           bg-[#c9aaa7]/[0.035]
-          blur-[85px]
+          blur-[55px] sm:blur-[85px]
         "
-        animate={{
-          x: [0, -24, 0],
-          y: [0, 18, 0],
-          opacity: [0.3, 0.55, 0.3],
-        }}
+        animate={
+          shouldAnimate
+            ? {
+                x: [0, -24, 0],
+                y: [0, 18, 0],
+                opacity: [0.3, 0.55, 0.3],
+              }
+            : undefined
+        }
         transition={{
           duration: 16,
           repeat: Infinity,
@@ -137,35 +164,45 @@ export default function Couple() {
       ===================================================== */}
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {particles.map((particle, index) => (
-          <motion.span
-            key={index}
-            className="
+        {particles
+          .slice(0, isMobile ? 8 : particles.length)
+          .map((particle, index) => (
+            <motion.span
+              key={index}
+              className="
               absolute
               rounded-full
               bg-[#b88f88]/45
               shadow-[0_0_9px_rgba(184,143,136,0.16)]
             "
-            style={{
-              left: particle.left,
-              top: particle.top,
-              width: particle.size,
-              height: particle.size,
-            }}
-            animate={{
-              opacity: [0, 0.45, 0.18, 0],
-              y: [0, -18, -36],
-              x: [0, index % 2 === 0 ? 7 : -7, index % 2 === 0 ? -4 : 4],
-              scale: [0.65, 1.2, 0.75],
-            }}
-            transition={{
-              duration: particle.duration,
-              delay: particle.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-        ))}
+              style={{
+                left: particle.left,
+                top: particle.top,
+                width: particle.size,
+                height: particle.size,
+              }}
+              animate={
+                shouldAnimate
+                  ? {
+                      opacity: [0, 0.45, 0.18, 0],
+                      y: [0, -18, -36],
+                      x: [
+                        0,
+                        index % 2 === 0 ? 7 : -7,
+                        index % 2 === 0 ? -4 : 4,
+                      ],
+                      scale: [0.65, 1.2, 0.75],
+                    }
+                  : undefined
+              }
+              transition={{
+                duration: particle.duration,
+                delay: particle.delay,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
       </div>
 
       {/* =====================================================
@@ -198,9 +235,13 @@ export default function Couple() {
               bg-[var(--line)]
               md:block
             "
-            animate={{
-              opacity: [0.45, 0.8, 0.45],
-            }}
+            animate={
+              shouldAnimate
+                ? {
+                    opacity: [0.45, 0.8, 0.45],
+                  }
+                : undefined
+            }
             transition={{
               duration: 8,
               repeat: Infinity,
@@ -226,11 +267,15 @@ export default function Couple() {
               bg-[var(--off-white)]
               md:block
             "
-            animate={{
-              rotate: [45, 135, 225, 315, 405],
-              scale: [1, 1.15, 1, 1.15, 1],
-              opacity: [0.5, 0.9, 0.5, 0.9, 0.5],
-            }}
+            animate={
+              shouldAnimate
+                ? {
+                    rotate: [45, 135, 225, 315, 405],
+                    scale: [1, 1.15, 1, 1.15, 1],
+                    opacity: [0.5, 0.9, 0.5, 0.9, 0.5],
+                  }
+                : undefined
+            }
             transition={{
               duration: 12,
               repeat: Infinity,
@@ -262,10 +307,14 @@ export default function Couple() {
                       bg-[#b88f88]/[0.035]
                       blur-2xl
                     "
-                    animate={{
-                      scale: [1, 1.025, 1],
-                      opacity: [0.35, 0.65, 0.35],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            scale: [1, 1.025, 1],
+                            opacity: [0.35, 0.65, 0.35],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 10,
                       repeat: Infinity,
@@ -284,11 +333,15 @@ export default function Couple() {
                       border
                       border-[#b88f88]/20
                     "
-                    animate={{
-                      rotate: [0, 1.5, 0, -1.5, 0],
-                      scale: [1, 1.012, 1],
-                      opacity: [0.45, 0.8, 0.45],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            rotate: [0, 1.5, 0, -1.5, 0],
+                            scale: [1, 1.012, 1],
+                            opacity: [0.45, 0.8, 0.45],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 12,
                       repeat: Infinity,
@@ -307,10 +360,14 @@ export default function Couple() {
                       border
                       border-[#b88f88]/[0.08]
                     "
-                    animate={{
-                      rotate: [0, -2, 0, 2, 0],
-                      scale: [1, 1.02, 1],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            rotate: [0, -2, 0, 2, 0],
+                            scale: [1, 1.02, 1],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 16,
                       repeat: Infinity,
@@ -326,13 +383,17 @@ export default function Couple() {
                       inset-[4%]
                       rounded-[48%_52%_45%_55%]
                       bg-[#b88f88]/[0.07]
-                      blur-xl
+                      blur-[8px] sm:blur-xl
                       scale-[1.015]
                     "
-                    animate={{
-                      scale: [1.015, 1.035, 1.015],
-                      opacity: [0.45, 0.75, 0.45],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            scale: [1.015, 1.035, 1.015],
+                            opacity: [0.45, 0.75, 0.45],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 9,
                       repeat: Infinity,
@@ -391,12 +452,13 @@ export default function Couple() {
                         contrast-[96%]
                         brightness-[0.96]
                         transition-transform
-                        duration-[1600ms]
+                        duration-1000
                         ease-out
-                        group-hover:scale-[1.045]
-                        group-hover:translate-y-[-3px]
+                        group-hover:scale-[1.04]
+                        group-hover:translate-y-[-2px]
                       "
-                      sizes="(max-width: 768px) 92vw, 42vw"
+                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 46vw, 42vw"
+                      quality={72}
                     />
 
                     {/* Subtle warm photo treatment */}
@@ -471,12 +533,16 @@ export default function Couple() {
                         from-transparent
                         via-white/[0.10]
                         to-transparent
-                        blur-xl
+                        blur-[8px] sm:blur-xl
                       "
-                      animate={{
-                        x: ["0%", "560%"],
-                        opacity: [0, 1, 1, 0],
-                      }}
+                      animate={
+                        shouldAnimate
+                          ? {
+                              x: ["0%", "560%"],
+                              opacity: [0, 1, 1, 0],
+                            }
+                          : undefined
+                      }
                       transition={{
                         duration: 7,
                         repeat: Infinity,
@@ -497,14 +563,18 @@ export default function Couple() {
                         w-28
                         rounded-full
                         bg-[#f8ebe6]/[0.045]
-                        blur-3xl
+                        blur-2xl sm:blur-3xl
                       "
-                      animate={{
-                        x: [0, 30, 10, 0],
-                        y: [0, 12, -6, 0],
-                        opacity: [0.25, 0.55, 0.3, 0.25],
-                        scale: [1, 1.15, 0.95, 1],
-                      }}
+                      animate={
+                        shouldAnimate
+                          ? {
+                              x: [0, 30, 10, 0],
+                              y: [0, 12, -6, 0],
+                              opacity: [0.25, 0.55, 0.3, 0.25],
+                              scale: [1, 1.15, 0.95, 1],
+                            }
+                          : undefined
+                      }
                       transition={{
                         duration: 13,
                         repeat: Infinity,
@@ -529,10 +599,14 @@ export default function Couple() {
                         to-transparent
                         blur-[2px]
                       "
-                      animate={{
-                        opacity: [0.15, 0.5, 0.15],
-                        scaleY: [0.8, 1, 0.8],
-                      }}
+                      animate={
+                        shouldAnimate
+                          ? {
+                              opacity: [0.15, 0.5, 0.15],
+                              scaleY: [0.8, 1, 0.8],
+                            }
+                          : undefined
+                      }
                       transition={{
                         duration: 6,
                         repeat: Infinity,
@@ -566,9 +640,13 @@ export default function Couple() {
                         5%_30%
                       )]
                     "
-                    animate={{
-                      opacity: [0.45, 0.8, 0.45],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            opacity: [0.45, 0.8, 0.45],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 7,
                       repeat: Infinity,
@@ -593,11 +671,15 @@ export default function Couple() {
                       border-t
                       border-[#9d6f62]/60
                     "
-                    animate={{
-                      opacity: [0.4, 0.85, 0.4],
-                      x: [0, 2, 0],
-                      y: [0, 2, 0],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            opacity: [0.4, 0.85, 0.4],
+                            x: [0, 2, 0],
+                            y: [0, 2, 0],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 5,
                       repeat: Infinity,
@@ -618,11 +700,15 @@ export default function Couple() {
                       border-r
                       border-[#9d6f62]/60
                     "
-                    animate={{
-                      opacity: [0.4, 0.85, 0.4],
-                      x: [0, -2, 0],
-                      y: [0, -2, 0],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            opacity: [0.4, 0.85, 0.4],
+                            x: [0, -2, 0],
+                            y: [0, -2, 0],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 5,
                       delay: 1,
@@ -649,12 +735,16 @@ export default function Couple() {
                       border-[#b88f88]/50
                       bg-[var(--off-white)]
                     "
-                    animate={{
-                      y: [0, -7, 0],
-                      opacity: [0.35, 0.85, 0.35],
-                      rotate: [45, 55, 45],
-                      scale: [1, 1.2, 1],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            y: [0, -7, 0],
+                            opacity: [0.35, 0.85, 0.35],
+                            rotate: [45, 55, 45],
+                            scale: [1, 1.2, 1],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 5,
                       repeat: Infinity,
@@ -676,10 +766,14 @@ export default function Couple() {
                       bg-[#f8ebe6]/70
                       shadow-[0_0_8px_rgba(248,235,230,0.35)]
                     "
-                    animate={{
-                      y: [0, -5, 0],
-                      opacity: [0.25, 0.75, 0.25],
-                    }}
+                    animate={
+                      shouldAnimate
+                        ? {
+                            y: [0, -5, 0],
+                            opacity: [0.25, 0.75, 0.25],
+                          }
+                        : undefined
+                    }
                     transition={{
                       duration: 4,
                       delay: 1.5,
@@ -773,10 +867,14 @@ export default function Couple() {
                         italic
                         text-[var(--terracotta)]/60
                       "
-                      animate={{
-                        opacity: [0.5, 0.9, 0.5],
-                        y: [0, -2, 0],
-                      }}
+                      animate={
+                        shouldAnimate
+                          ? {
+                              opacity: [0.5, 0.9, 0.5],
+                              y: [0, -2, 0],
+                            }
+                          : undefined
+                      }
                       transition={{
                         duration: 5,
                         delay: index * 0.5,
@@ -855,10 +953,14 @@ export default function Couple() {
                         rotate-45
                         bg-[var(--terracotta)]/60
                       "
-                      animate={{
-                        scale: [1, 1.5, 1],
-                        opacity: [0.4, 0.9, 0.4],
-                      }}
+                      animate={
+                        shouldAnimate
+                          ? {
+                              scale: [1, 1.5, 1],
+                              opacity: [0.4, 0.9, 0.4],
+                            }
+                          : undefined
+                      }
                       transition={{
                         duration: 4,
                         repeat: Infinity,
@@ -868,10 +970,14 @@ export default function Couple() {
 
                     <motion.span
                       className="h-px w-12 bg-[var(--line)]"
-                      animate={{
-                        scaleX: [1, 1.25, 1],
-                        opacity: [0.5, 0.8, 0.5],
-                      }}
+                      animate={
+                        shouldAnimate
+                          ? {
+                              scaleX: [1, 1.25, 1],
+                              opacity: [0.5, 0.8, 0.5],
+                            }
+                          : undefined
+                      }
                       transition={{
                         duration: 6,
                         repeat: Infinity,
