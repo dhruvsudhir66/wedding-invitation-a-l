@@ -80,7 +80,7 @@ export default function Gallery() {
       className="
         relative
         overflow-hidden
-        bg-[#F8F8F6]
+        bg-[#F7F3ED]
         py-20
         sm:py-24
         md:py-32
