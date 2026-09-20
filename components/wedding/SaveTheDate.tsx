@@ -868,7 +868,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
                   : { duration: 18, repeat: Infinity, ease: "easeInOut" }
               }
             >
-              <Image
+              {/* <Image
                 src="/images/save-date.webp"
                 alt="Wedding table setting"
                 fill
@@ -876,7 +876,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
                 quality={72}
                 sizes="(max-width: 640px) calc(100vw - 32px), 425px"
                 className="object-cover object-[center_38%]"
-              />
+              /> */}
             </motion.div>
 
             {/* Extremely soft blending at the edges */}
