@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { useRef } from "react";
 
 /* =============================================================
    SMALL ATMOSPHERIC BUBBLES
