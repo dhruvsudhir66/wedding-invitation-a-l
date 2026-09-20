@@ -342,7 +342,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         }}
         className="absolute inset-0"
       >
-        <Image
+        {/* <Image
           src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=60"
           alt=""
           fill
@@ -350,7 +350,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           quality={60}
           sizes="100vw"
           className="h-full w-full object-cover saturate-[0.55] brightness-[1.04]"
-        />
+        /> */}
       </motion.div>
 
       {/* =========================================================
