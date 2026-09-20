@@ -633,6 +633,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               uppercase
               tracking-[0.42em]
               text-[#83736b]
+              mt-[10px]
             "
           >
             A new chapter begins
@@ -947,6 +948,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               uppercase
               tracking-[0.32em]
               text-[#94847b]
+              mb-[10px]
             "
           >
             We can't wait to celebrate with you
