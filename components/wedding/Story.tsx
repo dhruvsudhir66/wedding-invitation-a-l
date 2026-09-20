@@ -489,7 +489,7 @@ export default function Story() {
                   "
                 >
                   <Image
-                    src="/images/couple-2.jpeg"
+                    src="/images/couple-2.webp"
                     alt=""
                     fill
                     aria-hidden="true"

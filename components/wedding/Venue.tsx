@@ -740,7 +740,7 @@ export default function Venue() {
               "
             >
               <motion.img
-                src="/images/church-thuruthipuram.jpeg"
+                src="/images/church-thuruthipuram.webp"
                 alt="Church where the celebration begins"
                 animate={{
                   scale: [1.015, 1.025, 1.015],

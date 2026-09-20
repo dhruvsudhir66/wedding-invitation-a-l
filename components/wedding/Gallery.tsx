@@ -7,7 +7,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 
 const photos = [
   {
-    src: "/images/gallery/couple-gallery-1.jpeg",
+    src: "/images/gallery/couple-gallery-1.webp",
     alt: "The beginning",
     number: "01",
     aspect: "aspect-[4/5]",
@@ -16,7 +16,7 @@ const photos = [
     mobile: "translate-y-0",
   },
   {
-    src: "/images/gallery/couple-gallery-2.jpeg",
+    src: "/images/gallery/couple-gallery-2.webp",
     alt: "Together",
     number: "02",
     aspect: "aspect-[5/6]",
@@ -25,7 +25,7 @@ const photos = [
     mobile: "translate-y-6",
   },
   {
-    src: "/images/gallery/couple-gallery-3.jpeg",
+    src: "/images/gallery/couple-gallery-3.webp",
     alt: "A quiet moment",
     number: "03",
     aspect: "aspect-[4/5]",
@@ -34,7 +34,7 @@ const photos = [
     mobile: "translate-y-0",
   },
   {
-    src: "/images/gallery/couple-gallery-4.jpeg",
+    src: "/images/gallery/couple-gallery-4.webp",
     alt: "Golden hour",
     number: "04",
     aspect: "aspect-[5/6]",
@@ -43,7 +43,7 @@ const photos = [
     mobile: "translate-y-10",
   },
   {
-    src: "/images/gallery/couple-gallery-5.jpeg",
+    src: "/images/gallery/couple-gallery-5.webp",
     alt: "Celebration",
     number: "05",
     aspect: "aspect-[4/5]",
@@ -52,7 +52,7 @@ const photos = [
     mobile: "translate-y-0",
   },
   {
-    src: "/images/gallery/couple-gallery-7.jpeg",
+    src: "/images/gallery/couple-gallery-7.webp",
     alt: "The details",
     number: "06",
     aspect: "aspect-[5/6]",
