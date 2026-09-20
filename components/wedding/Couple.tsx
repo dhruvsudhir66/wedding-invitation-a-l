@@ -2,8 +2,6 @@
 
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState } from "react";
-import Reveal from "@/components/ui/Reveal";
 import SectionHeading from "@/components/ui/SectionHeading";
 
 const people = [
@@ -25,27 +23,8 @@ const people = [
   },
 ];
 
-const particles = Array.from({ length: 26 }, (_, index) => ({
-  left: `${4 + ((index * 43) % 92)}%`,
-  top: `${8 + ((index * 31) % 84)}%`,
-  size: index % 7 === 0 ? 4 : index % 3 === 0 ? 3 : 2,
-  delay: index * 0.3,
-  duration: 5 + (index % 5),
-}));
-
 export default function Couple() {
   const reduceMotion = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-    const update = () => setIsMobile(mediaQuery.matches);
-    update();
-    mediaQuery.addEventListener("change", update);
-    return () => mediaQuery.removeEventListener("change", update);
-  }, []);
-
-  const shouldAnimate = !reduceMotion && !isMobile;
 
   return (
     <section
@@ -60,92 +39,17 @@ export default function Couple() {
       "
     >
       {/* =====================================================
-          ATMOSPHERIC BACKGROUND
+          LIGHTWEIGHT ATMOSPHERIC BACKGROUND
+          Static gradients keep the same warmth without animating blur.
       ===================================================== */}
-
-      <motion.div
-        className="
-          pointer-events-none
-          absolute
-          left-1/2
-          top-[42%]
-          h-[460px]
-          w-[460px]
-          -translate-x-1/2
-          rounded-full
-          bg-[#c9aaa7]/[0.045]
-          blur-[60px] sm:blur-[90px]
-        "
-        animate={
-          shouldAnimate
-            ? {
-                scale: [1, 1.05, 1],
-                opacity: [0.45, 0.7, 0.45],
-              }
-            : undefined
-        }
-        transition={{
-          duration: 12,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      <motion.div
-        className="
-          pointer-events-none
-          absolute
-          -left-32
-          top-[18%]
-          h-72
-          w-72
-          rounded-full
-          bg-[#d7b8ae]/[0.04]
-          blur-[50px] sm:blur-[75px]
-        "
-        animate={
-          shouldAnimate
-            ? {
-                x: [0, 25, 0],
-                y: [0, -14, 0],
-                opacity: [0.35, 0.65, 0.35],
-              }
-            : undefined
-        }
-        transition={{
-          duration: 14,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      <motion.div
-        className="
-          pointer-events-none
-          absolute
-          -right-32
-          bottom-[10%]
-          h-80
-          w-80
-          rounded-full
-          bg-[#c9aaa7]/[0.035]
-          blur-[55px] sm:blur-[85px]
-        "
-        animate={
-          shouldAnimate
-            ? {
-                x: [0, -24, 0],
-                y: [0, 18, 0],
-                opacity: [0.3, 0.55, 0.3],
-              }
-            : undefined
-        }
-        transition={{
-          duration: 16,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute left-1/2 top-[40%] h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(201,170,167,0.075)_0%,rgba(201,170,167,0.025)_42%,transparent_72%)]" />
+        <div className="absolute -left-32 top-[18%] h-72 w-72 rounded-full bg-[radial-gradient(circle,rgba(215,184,174,0.06)_0%,transparent_70%)]" />
+        <div className="absolute -right-32 bottom-[10%] h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(201,170,167,0.055)_0%,transparent_70%)]" />
+      </div>
 
       {/* Fine background grain */}
       <div
@@ -158,52 +62,6 @@ export default function Couple() {
           [background-size:5px_5px]
         "
       />
-
-      {/* =====================================================
-          FLOATING PARTICLES
-      ===================================================== */}
-
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {particles
-          .slice(0, isMobile ? 8 : particles.length)
-          .map((particle, index) => (
-            <motion.span
-              key={index}
-              className="
-              absolute
-              rounded-full
-              bg-[#b88f88]/45
-              shadow-[0_0_9px_rgba(184,143,136,0.16)]
-            "
-              style={{
-                left: particle.left,
-                top: particle.top,
-                width: particle.size,
-                height: particle.size,
-              }}
-              animate={
-                shouldAnimate
-                  ? {
-                      opacity: [0, 0.45, 0.18, 0],
-                      y: [0, -18, -36],
-                      x: [
-                        0,
-                        index % 2 === 0 ? 7 : -7,
-                        index % 2 === 0 ? -4 : 4,
-                      ],
-                      scale: [0.65, 1.2, 0.75],
-                    }
-                  : undefined
-              }
-              transition={{
-                duration: particle.duration,
-                delay: particle.delay,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          ))}
-      </div>
 
       {/* =====================================================
           CONTENT
@@ -222,7 +80,7 @@ export default function Couple() {
 
         <div className="relative mt-16 grid gap-12 md:mt-20 md:grid-cols-2 md:gap-0">
           {/* Desktop center line */}
-          <motion.div
+          <div
             className="
               pointer-events-none
               absolute
@@ -235,22 +93,10 @@ export default function Couple() {
               bg-[var(--line)]
               md:block
             "
-            animate={
-              shouldAnimate
-                ? {
-                    opacity: [0.45, 0.8, 0.45],
-                  }
-                : undefined
-            }
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
           />
 
           {/* Center diamond */}
-          <motion.div
+          <div
             className="
               pointer-events-none
               absolute
@@ -267,64 +113,46 @@ export default function Couple() {
               bg-[var(--off-white)]
               md:block
             "
-            animate={
-              shouldAnimate
-                ? {
-                    rotate: [45, 135, 225, 315, 405],
-                    scale: [1, 1.15, 1, 1.15, 1],
-                    opacity: [0.5, 0.9, 0.5, 0.9, 0.5],
-                  }
-                : undefined
-            }
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
           />
 
           {people.map((person, index) => (
-            <Reveal key={person.name} delay={index * 0.1}>
-              <article
-                className={`
+            <motion.article
+              key={person.name}
+              initial={reduceMotion ? false : { opacity: 0, y: 18 }}
+              whileInView={reduceMotion ? undefined : { opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.18 }}
+              transition={{
+                duration: 0.55,
+                delay: index * 0.08,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className={`
                   group
                   relative
                   ${index === 0 ? "md:pr-12 lg:pr-16" : "md:pl-12 lg:pl-16"}
                 `}
-              >
-                {/* =================================================
+            >
+              {/* =================================================
                     PORTRAIT
                 ================================================= */}
 
-                <div className="relative mx-auto aspect-[4/5] w-[92%] sm:w-[88%]">
-                  {/* Outer floating halo */}
-                  <motion.div
-                    className="
+              <div className="relative mx-auto aspect-[4/5] w-[92%] sm:w-[88%]">
+                {/* Lightweight portrait halo */}
+                <div
+                  aria-hidden="true"
+                  className="
                       pointer-events-none
                       absolute
-                      -inset-[4%]
+                      -inset-[3%]
                       rounded-[48%_52%_45%_55%]
-                      bg-[#b88f88]/[0.035]
-                      blur-2xl
+                      bg-[radial-gradient(ellipse_at_center,rgba(184,143,136,0.10)_0%,rgba(184,143,136,0.045)_42%,transparent_72%)]
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            scale: [1, 1.025, 1],
-                            opacity: [0.35, 0.65, 0.35],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 10,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  {/* Floating editorial ring */}
-                  <motion.div
-                    className="
+                {/* Editorial outline ring */}
+                <div
+                  aria-hidden="true"
+                  className="
                       pointer-events-none
                       absolute
                       -inset-[3%]
@@ -333,77 +161,11 @@ export default function Couple() {
                       border
                       border-[#b88f88]/20
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            rotate: [0, 1.5, 0, -1.5, 0],
-                            scale: [1, 1.012, 1],
-                            opacity: [0.45, 0.8, 0.45],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 12,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  {/* Secondary orbit line */}
-                  <motion.div
-                    className="
-                      pointer-events-none
-                      absolute
-                      -inset-[6%]
-                      z-10
-                      rounded-[46%_54%_48%_52%]
-                      border
-                      border-[#b88f88]/[0.08]
-                    "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            rotate: [0, -2, 0, 2, 0],
-                            scale: [1, 1.02, 1],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 16,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-
-                  {/* Reduced portrait halo */}
-                  <motion.div
-                    className="
-                      pointer-events-none
-                      absolute
-                      inset-[4%]
-                      rounded-[48%_52%_45%_55%]
-                      bg-[#b88f88]/[0.07]
-                      blur-[8px] sm:blur-xl
-                      scale-[1.015]
-                    "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            scale: [1.015, 1.035, 1.015],
-                            opacity: [0.45, 0.75, 0.45],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 9,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
-
-                  {/* Main portrait */}
-                  <motion.div
-                    className="
+                {/* Main portrait */}
+                <motion.div
+                  className="
                       absolute
                       inset-0
                       overflow-hidden
@@ -421,30 +183,30 @@ export default function Couple() {
                         5%_30%
                       )]
                     "
-                    initial={{
-                      opacity: 0,
-                      scale: 1.04,
-                      y: 15,
-                    }}
-                    whileInView={{
-                      opacity: 1,
-                      scale: 1,
-                      y: 0,
-                    }}
-                    viewport={{
-                      once: true,
-                      amount: 0.25,
-                    }}
-                    transition={{
-                      duration: 1.2,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                  >
-                    <Image
-                      src={person.image}
-                      alt={`${person.name}, ${person.role}`}
-                      fill
-                      className="
+                  initial={{
+                    opacity: 0,
+                    scale: 1.04,
+                    y: 15,
+                  }}
+                  whileInView={{
+                    opacity: 1,
+                    scale: 1,
+                    y: 0,
+                  }}
+                  viewport={{
+                    once: true,
+                    amount: 0.25,
+                  }}
+                  transition={{
+                    duration: reduceMotion ? 0 : 0.65,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                >
+                  <Image
+                    src={person.image}
+                    alt={`${person.name}, ${person.role}`}
+                    fill
+                    className="
                         object-cover
                         grayscale-[18%]
                         sepia-[8%]
@@ -452,29 +214,29 @@ export default function Couple() {
                         contrast-[96%]
                         brightness-[0.96]
                         transition-transform
-                        duration-1000
+                        duration-700
                         ease-out
                         group-hover:scale-[1.04]
                         group-hover:translate-y-[-2px]
                       "
-                      sizes="(max-width: 640px) 88vw, (max-width: 1024px) 46vw, 42vw"
-                      quality={72}
-                    />
+                    sizes="(max-width: 640px) 88vw, (max-width: 1024px) 46vw, 42vw"
+                    quality={72}
+                  />
 
-                    {/* Subtle warm photo treatment */}
-                    <div
-                      className="
+                  {/* Subtle warm photo treatment */}
+                  <div
+                    className="
                         pointer-events-none
                         absolute
                         inset-0
                         bg-[#9d6f62]/[0.08]
                         mix-blend-color
                       "
-                    />
+                  />
 
-                    {/* Subtle photographic edges */}
-                    <div
-                      className="
+                  {/* Subtle photographic edges */}
+                  <div
+                    className="
                         pointer-events-none
                         absolute
                         inset-0
@@ -485,11 +247,11 @@ export default function Couple() {
                           rgba(53,49,46,0.11)_100%
                         )]
                       "
-                    />
+                  />
 
-                    {/* Soft lower fade */}
-                    <div
-                      className="
+                  {/* Soft lower fade */}
+                  <div
+                    className="
                         pointer-events-none
                         absolute
                         inset-x-0
@@ -500,127 +262,27 @@ export default function Couple() {
                         via-[var(--off-white)]/25
                         to-transparent
                       "
-                    />
+                  />
 
-                    {/* Subtle grain */}
-                    <div
-                      className="
+                  {/* Subtle grain */}
+                  <div
+                    className="
                         pointer-events-none
                         absolute
                         inset-0
-                        opacity-[0.06]
-                        mix-blend-overlay
+                        hidden opacity-[0.06] mix-blend-overlay sm:block
                         [background-image:radial-gradient(rgba(255,255,255,.8)_0.6px,transparent_0.6px)]
                         [background-size:4px_4px]
                       "
-                    />
+                  />
+                </motion.div>
 
-                    {/* =================================================
-                        CINEMATIC LIGHT REFLECTION
-                    ================================================= */}
-
-                    <motion.div
-                      className="
-                        pointer-events-none
-                        absolute
-                        -left-[40%]
-                        top-[-10%]
-                        z-10
-                        h-[120%]
-                        w-[24%]
-                        rotate-[12deg]
-                        bg-gradient-to-r
-                        from-transparent
-                        via-white/[0.10]
-                        to-transparent
-                        blur-[8px] sm:blur-xl
-                      "
-                      animate={
-                        shouldAnimate
-                          ? {
-                              x: ["0%", "560%"],
-                              opacity: [0, 1, 1, 0],
-                            }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 7,
-                        repeat: Infinity,
-                        repeatDelay: 8,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                    />
-
-                    {/* Soft moving glow */}
-                    <motion.div
-                      className="
-                        pointer-events-none
-                        absolute
-                        left-[10%]
-                        top-[15%]
-                        z-10
-                        h-28
-                        w-28
-                        rounded-full
-                        bg-[#f8ebe6]/[0.045]
-                        blur-2xl sm:blur-3xl
-                      "
-                      animate={
-                        shouldAnimate
-                          ? {
-                              x: [0, 30, 10, 0],
-                              y: [0, 12, -6, 0],
-                              opacity: [0.25, 0.55, 0.3, 0.25],
-                              scale: [1, 1.15, 0.95, 1],
-                            }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 13,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-
-                    {/* Fine vertical light */}
-                    <motion.div
-                      className="
-                        pointer-events-none
-                        absolute
-                        bottom-[15%]
-                        right-[12%]
-                        z-10
-                        h-[35%]
-                        w-px
-                        rotate-[12deg]
-                        bg-gradient-to-b
-                        from-transparent
-                        via-white/[0.16]
-                        to-transparent
-                        blur-[2px]
-                      "
-                      animate={
-                        shouldAnimate
-                          ? {
-                              opacity: [0.15, 0.5, 0.15],
-                              scaleY: [0.8, 1, 0.8],
-                            }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
-                  </motion.div>
-
-                  {/* =================================================
+                {/* =================================================
                       FINE EDITORIAL OUTLINE
                   ================================================= */}
 
-                  <motion.div
-                    className="
+                <div
+                  className="
                       pointer-events-none
                       absolute
                       inset-[10px]
@@ -640,26 +302,14 @@ export default function Couple() {
                         5%_30%
                       )]
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            opacity: [0.45, 0.8, 0.45],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 7,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  {/* =================================================
+                {/* =================================================
                       CORNER ACCENTS
                   ================================================= */}
 
-                  <motion.div
-                    className="
+                <div
+                  className="
                       pointer-events-none
                       absolute
                       left-[7%]
@@ -671,24 +321,10 @@ export default function Couple() {
                       border-t
                       border-[#9d6f62]/60
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            opacity: [0.4, 0.85, 0.4],
-                            x: [0, 2, 0],
-                            y: [0, 2, 0],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  <motion.div
-                    className="
+                <div
+                  className="
                       pointer-events-none
                       absolute
                       bottom-[7%]
@@ -700,29 +336,14 @@ export default function Couple() {
                       border-r
                       border-[#9d6f62]/60
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            opacity: [0.4, 0.85, 0.4],
-                            x: [0, -2, 0],
-                            y: [0, -2, 0],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 5,
-                      delay: 1,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  {/* =================================================
+                {/* =================================================
                       FLOATING DIAMOND
                   ================================================= */}
 
-                  <motion.span
-                    className="
+                <span
+                  className="
                       pointer-events-none
                       absolute
                       right-[4%]
@@ -735,26 +356,11 @@ export default function Couple() {
                       border-[#b88f88]/50
                       bg-[var(--off-white)]
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            y: [0, -7, 0],
-                            opacity: [0.35, 0.85, 0.35],
-                            rotate: [45, 55, 45],
-                            scale: [1, 1.2, 1],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  {/* Second tiny accent */}
-                  <motion.span
-                    className="
+                {/* Second tiny accent */}
+                <span
+                  className="
                       pointer-events-none
                       absolute
                       left-[13%]
@@ -766,28 +372,14 @@ export default function Couple() {
                       bg-[#f8ebe6]/70
                       shadow-[0_0_8px_rgba(248,235,230,0.35)]
                     "
-                    animate={
-                      shouldAnimate
-                        ? {
-                            y: [0, -5, 0],
-                            opacity: [0.25, 0.75, 0.25],
-                          }
-                        : undefined
-                    }
-                    transition={{
-                      duration: 4,
-                      delay: 1.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }}
-                  />
+                />
 
-                  {/* =================================================
+                {/* =================================================
                       ROLE
                   ================================================= */}
 
-                  <div
-                    className="
+                <div
+                  className="
                       absolute
                       bottom-[10%]
                       left-[8%]
@@ -796,11 +388,11 @@ export default function Couple() {
                       items-center
                       gap-3
                     "
-                  >
-                    <span className="h-px w-7 bg-[#f7f3ed]/70" />
+                >
+                  <span className="h-px w-7 bg-[#f7f3ed]/70" />
 
-                    <span
-                      className="
+                  <span
+                    className="
                         text-[9px]
                         font-medium
                         uppercase
@@ -808,18 +400,18 @@ export default function Couple() {
                         text-[#f7f3ed]
                         drop-shadow-[0_1px_5px_rgba(0,0,0,.25)]
                       "
-                    >
-                      {person.role}
-                    </span>
-                  </div>
+                  >
+                    {person.role}
+                  </span>
                 </div>
+              </div>
 
-                {/* =================================================
+              {/* =================================================
                     DETAILS
                 ================================================= */}
 
-                <div
-                  className="
+              <div
+                className="
                     relative
                     mx-auto
                     w-[92%]
@@ -829,24 +421,24 @@ export default function Couple() {
                     sm:w-[88%]
                     md:py-8
                   "
-                >
-                  {/* Name */}
-                  <div className="flex items-start justify-between gap-5">
-                    <div>
-                      <p
-                        className="
+              >
+                {/* Name */}
+                <div className="flex items-start justify-between gap-5">
+                  <div>
+                    <p
+                      className="
                           mb-2
                           text-[8px]
                           uppercase
                           tracking-[0.25em]
                           text-[var(--terracotta)]
                         "
-                      >
-                        {index === 0 ? "She" : "He"}
-                      </p>
+                    >
+                      {index === 0 ? "She" : "He"}
+                    </p>
 
-                      <h3
-                        className="
+                    <h3
+                      className="
                           font-display
                           text-[34px]
                           leading-none
@@ -854,54 +446,40 @@ export default function Couple() {
                           text-[var(--ink)]
                           sm:text-4xl
                         "
-                      >
-                        {person.name}
-                      </h3>
-                    </div>
+                    >
+                      {person.name}
+                    </h3>
+                  </div>
 
-                    <motion.span
-                      className="
+                  <span
+                    className="
                         pt-1
                         font-display
                         text-xl
                         italic
                         text-[var(--terracotta)]/60
                       "
-                      animate={
-                        shouldAnimate
-                          ? {
-                              opacity: [0.5, 0.9, 0.5],
-                              y: [0, -2, 0],
-                            }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 5,
-                        delay: index * 0.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    >
-                      0{index + 1}
-                    </motion.span>
-                  </div>
+                  >
+                    0{index + 1}
+                  </span>
+                </div>
 
-                  {/* Family */}
-                  <div className="mt-7">
-                    <p
-                      className="
+                {/* Family */}
+                <div className="mt-7">
+                  <p
+                    className="
                         text-[8px]
                         font-medium
                         uppercase
                         tracking-[0.24em]
                         text-[var(--terracotta)]
                       "
-                    >
-                      Family
-                    </p>
+                  >
+                    Family
+                  </p>
 
-                    <p
-                      className="
+                  <p
+                    className="
                         mt-2
                         max-w-lg
                         text-[12px]
@@ -910,27 +488,27 @@ export default function Couple() {
                         sm:text-[13px]
                         sm:leading-7
                       "
-                    >
-                      {person.family}
-                    </p>
-                  </div>
+                  >
+                    {person.family}
+                  </p>
+                </div>
 
-                  {/* What we do */}
-                  <div className="mt-6">
-                    <p
-                      className="
+                {/* What we do */}
+                <div className="mt-6">
+                  <p
+                    className="
                         text-[8px]
                         font-medium
                         uppercase
                         tracking-[0.24em]
                         text-[var(--terracotta)]
                       "
-                    >
-                      What we do
-                    </p>
+                  >
+                    What we do
+                  </p>
 
-                    <p
-                      className="
+                  <p
+                    className="
                         mt-2
                         max-w-lg
                         text-[12px]
@@ -939,66 +517,37 @@ export default function Couple() {
                         sm:text-[13px]
                         sm:leading-7
                       "
-                    >
-                      {person.work}
-                    </p>
-                  </div>
+                  >
+                    {person.work}
+                  </p>
+                </div>
 
-                  {/* Small editorial footer */}
-                  <div className="mt-7 flex items-center gap-3">
-                    <motion.span
-                      className="
+                {/* Small editorial footer */}
+                <div className="mt-7 flex items-center gap-3">
+                  <span
+                    className="
                         h-1
                         w-1
                         rotate-45
                         bg-[var(--terracotta)]/60
                       "
-                      animate={
-                        shouldAnimate
-                          ? {
-                              scale: [1, 1.5, 1],
-                              opacity: [0.4, 0.9, 0.4],
-                            }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
+                  />
 
-                    <motion.span
-                      className="h-px w-12 bg-[var(--line)]"
-                      animate={
-                        shouldAnimate
-                          ? {
-                              scaleX: [1, 1.25, 1],
-                              opacity: [0.5, 0.8, 0.5],
-                            }
-                          : undefined
-                      }
-                      transition={{
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                    />
+                  <span className="h-px w-12 bg-[var(--line)]" />
 
-                    <span
-                      className="
+                  <span
+                    className="
                         text-[8px]
                         uppercase
                         tracking-[0.2em]
                         text-[var(--muted)]/60
                       "
-                    >
-                      Aneena & Loyed
-                    </span>
-                  </div>
+                  >
+                    Aneena & Loyed
+                  </span>
                 </div>
-              </article>
-            </Reveal>
+              </div>
+            </motion.article>
           ))}
         </div>
       </div>
