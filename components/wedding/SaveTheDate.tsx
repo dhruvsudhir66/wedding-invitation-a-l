@@ -626,16 +626,16 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           px-3.5
           py-4
           text-center
-          max-h-[calc(100svh-12px)]
+          max-h-[calc(100svh-4px)]
           sm:px-10
           sm:py-8
-          sm:max-h-[calc(100svh-24px)]
+          sm:max-h-[calc(100svh-12px)]
           md:max-h-none
           shadow-[0_25px_70px_rgba(67,48,39,.22)] sm:shadow-[0_35px_95px_rgba(67,48,39,.24)]
           backdrop-blur-[2px] sm:backdrop-blur-md md:backdrop-blur-xl
           max-[380px]:px-3
           max-[380px]:py-3
-          max-[380px]:max-h-[calc(100svh-8px)]
+          max-[380px]:max-h-[calc(100svh-4px)]
           
         "
       >
@@ -698,7 +698,6 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               uppercase
               tracking-[0.42em]
               text-[#83736b]
-              mt-3
             "
           >
             A new chapter begins
@@ -834,7 +833,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             relative
             mx-auto
             mt-4
-            aspect-[16/9]
+            aspect-[4/3]
             max-w-[425px]
             sm:mt-6
             sm:aspect-[4/3]
@@ -876,7 +875,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
                 priority
                 quality={72}
                 sizes="(max-width: 640px) calc(100vw - 32px), 425px"
-                className="object-cover"
+                className="object-cover object-[center_38%]"
               />
             </motion.div>
 
