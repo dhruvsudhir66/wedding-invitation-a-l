@@ -1,312 +1,264 @@
+/* SaveTheDate.tsx
+ *
+ * Mobile/GPU-safe version.
+ * Main goals:
+ * - No backdrop-filter on the invitation card.
+ * - No SVG feTurbulence grain filter.
+ * - No mix-blend-mode.
+ * - No large animated blur layers.
+ * - No dozens of independently animated Framer Motion nodes.
+ * - No mobile detection state that can cause a desktop->mobile re-render flash.
+ * - Uses a stable 100svh viewport for Samsung/Android browser UI.
+ * - Keeps the invitation card, frame, typography and atmospheric feel.
+ */
+
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useMemo, type CSSProperties } from "react";
 
-/* =============================================================
+type Bubble = {
+  left: string;
+  top: string;
+  size: number;
+  delay: number;
+  duration: number;
+  driftX: number;
+  driftY: number;
+};
+
+type FallingElement = {
+  left: string;
+  size: number;
+  delay: number;
+  duration: number;
+  drift: number;
+  rotate: number;
+  opacity: number;
+};
+
+/* -------------------------------------------------------------
    SMALL ATMOSPHERIC BUBBLES
+   Kept intentionally small and limited. They are CSS animated,
+   rather than 40+ independent Framer Motion layers.
+------------------------------------------------------------- */
 
-   Pink translucent glass bubbles.
-   More visible than before, but still transparent enough
-   to allow the invitation card to remain clearly readable.
-============================================================= */
-
-const bubbles = [
-  // Left side
-  { startX: "3%", startY: "18%", size: 27, delay: 0, duration: 13 },
-  { startX: "10%", startY: "42%", size: 16, delay: 2, duration: 11 },
-  { startX: "7%", startY: "72%", size: 21, delay: 1, duration: 14 },
-  { startX: "15%", startY: "88%", size: 13, delay: 5, duration: 16 },
-  { startX: "18%", startY: "57%", size: 9, delay: 4, duration: 18 },
-  { startX: "12%", startY: "31%", size: 12, delay: 8, duration: 17 },
-
-  // Upper area
-  { startX: "21%", startY: "10%", size: 14, delay: 4, duration: 15 },
-  { startX: "35%", startY: "7%", size: 20, delay: 7, duration: 17 },
-  { startX: "48%", startY: "13%", size: 11, delay: 3, duration: 14 },
-  { startX: "63%", startY: "8%", size: 17, delay: 6, duration: 16 },
-  { startX: "78%", startY: "12%", size: 23, delay: 1, duration: 14 },
-  { startX: "44%", startY: "5%", size: 8, delay: 9, duration: 20 },
-  { startX: "58%", startY: "17%", size: 13, delay: 5, duration: 18 },
-
-  // Right side
-  { startX: "92%", startY: "25%", size: 27, delay: 3, duration: 16 },
-  { startX: "86%", startY: "48%", size: 15, delay: 5, duration: 12 },
-  { startX: "94%", startY: "67%", size: 21, delay: 2, duration: 15 },
-  { startX: "82%", startY: "84%", size: 13, delay: 4, duration: 18 },
-  { startX: "89%", startY: "38%", size: 9, delay: 8, duration: 19 },
-  { startX: "76%", startY: "91%", size: 11, delay: 6, duration: 17 },
-
-  // Bubbles crossing the invitation card
-  { startX: "24%", startY: "76%", size: 17, delay: 1, duration: 17 },
-  { startX: "30%", startY: "68%", size: 12, delay: 5, duration: 15 },
-  { startX: "42%", startY: "87%", size: 20, delay: 3, duration: 19 },
-  { startX: "52%", startY: "78%", size: 14, delay: 6, duration: 16 },
-  { startX: "61%", startY: "89%", size: 18, delay: 2, duration: 18 },
-  { startX: "69%", startY: "71%", size: 12, delay: 7, duration: 15 },
-  { startX: "37%", startY: "82%", size: 9, delay: 4, duration: 20 },
-  { startX: "57%", startY: "69%", size: 11, delay: 9, duration: 18 },
-
-  // Smaller background bubbles
-  { startX: "18%", startY: "28%", size: 10, delay: 8, duration: 20 },
-  { startX: "73%", startY: "34%", size: 11, delay: 4, duration: 18 },
-  { startX: "56%", startY: "24%", size: 13, delay: 9, duration: 19 },
-  { startX: "38%", startY: "52%", size: 10, delay: 6, duration: 21 },
-  { startX: "83%", startY: "61%", size: 8, delay: 11, duration: 19 },
-  { startX: "22%", startY: "63%", size: 8, delay: 10, duration: 22 },
-
-  // Extra bubbles around the "SAVE THE DATE" area
-  { startX: "27%", startY: "27%", size: 15, delay: 2, duration: 15 },
-  { startX: "32%", startY: "34%", size: 10, delay: 7, duration: 18 },
-  { startX: "39%", startY: "25%", size: 13, delay: 4, duration: 17 },
-  { startX: "47%", startY: "31%", size: 17, delay: 1, duration: 16 },
-  { startX: "55%", startY: "27%", size: 11, delay: 6, duration: 19 },
-  { startX: "64%", startY: "32%", size: 15, delay: 3, duration: 17 },
-  { startX: "70%", startY: "25%", size: 10, delay: 8, duration: 20 },
-  { startX: "35%", startY: "29%", size: 8, delay: 10, duration: 21 },
-  { startX: "60%", startY: "29%", size: 8, delay: 12, duration: 18 },
-
-  // Small bubbles passing through the title
-  { startX: "31%", startY: "41%", size: 11, delay: 5, duration: 18 },
-  { startX: "43%", startY: "38%", size: 14, delay: 2, duration: 16 },
-  { startX: "57%", startY: "42%", size: 12, delay: 7, duration: 19 },
-  { startX: "67%", startY: "39%", size: 10, delay: 4, duration: 17 },
-  { startX: "36%", startY: "47%", size: 8, delay: 9, duration: 20 },
-  { startX: "62%", startY: "46%", size: 9, delay: 11, duration: 18 },
-];
-
-/* =============================================================
-   LIGHT PARTICLES
-============================================================= */
-
-const particles = Array.from({ length: 20 }, (_, index) => ({
-  left: `${5 + ((index * 31) % 90)}%`,
-  top: `${5 + ((index * 23) % 88)}%`,
-  delay: index * 0.25,
-  duration: 3 + (index % 4),
-}));
-
-/* =============================================================
-   FALLING FLORAL / SNOW-LIKE ELEMENTS
-============================================================= */
-
-const fallingElements = [
+const bubbles: Bubble[] = [
   {
-    left: "5%",
-    size: 13,
+    left: "7%",
+    top: "18%",
+    size: 18,
     delay: 0,
-    duration: 12,
-    drift: 28,
-    rotate: 120,
-    opacity: 0.42,
-  },
-  {
-    left: "11%",
-    size: 9,
-    delay: 3,
     duration: 15,
-    drift: -20,
-    rotate: 70,
-    opacity: 0.34,
+    driftX: 16,
+    driftY: -28,
   },
   {
-    left: "17%",
+    left: "15%",
+    top: "43%",
     size: 11,
+    delay: 3,
+    duration: 17,
+    driftX: -12,
+    driftY: -24,
+  },
+  {
+    left: "9%",
+    top: "72%",
+    size: 15,
     delay: 6,
-    duration: 14,
-    drift: 32,
-    rotate: 180,
-    opacity: 0.38,
+    duration: 18,
+    driftX: 18,
+    driftY: -32,
   },
   {
     left: "23%",
-    size: 8,
-    delay: 2,
-    duration: 11,
-    drift: -24,
-    rotate: 90,
-    opacity: 0.31,
-  },
-  {
-    left: "29%",
+    top: "12%",
     size: 12,
-    delay: 8,
-    duration: 16,
-    drift: 20,
-    rotate: 210,
-    opacity: 0.4,
-  },
-  {
-    left: "35%",
-    size: 9,
     delay: 4,
-    duration: 13,
-    drift: -28,
-    rotate: 145,
-    opacity: 0.34,
+    duration: 19,
+    driftX: 14,
+    driftY: -25,
   },
   {
-    left: "41%",
-    size: 13,
-    delay: 1,
-    duration: 15,
-    drift: 25,
-    rotate: 260,
-    opacity: 0.42,
-  },
-  {
-    left: "47%",
-    size: 8,
+    left: "36%",
+    top: "22%",
+    size: 9,
     delay: 7,
-    duration: 12,
-    drift: -18,
-    rotate: 110,
-    opacity: 0.3,
-  },
-  {
-    left: "53%",
-    size: 11,
-    delay: 3,
-    duration: 14,
-    drift: 26,
-    rotate: 190,
-    opacity: 0.38,
-  },
-  {
-    left: "59%",
-    size: 9,
-    delay: 9,
-    duration: 17,
-    drift: -24,
-    rotate: 320,
-    opacity: 0.33,
-  },
-  {
-    left: "65%",
-    size: 12,
-    delay: 5,
-    duration: 13,
-    drift: 18,
-    rotate: 240,
-    opacity: 0.39,
-  },
-  {
-    left: "71%",
-    size: 8,
-    delay: 10,
-    duration: 18,
-    drift: 30,
-    rotate: 80,
-    opacity: 0.3,
-  },
-  {
-    left: "77%",
-    size: 13,
-    delay: 12,
     duration: 16,
-    drift: -25,
-    rotate: 160,
-    opacity: 0.4,
+    driftX: -10,
+    driftY: -22,
   },
   {
-    left: "83%",
-    size: 9,
-    delay: 4,
-    duration: 14,
-    drift: 22,
-    rotate: 300,
-    opacity: 0.34,
+    left: "58%",
+    top: "14%",
+    size: 13,
+    delay: 2,
+    duration: 18,
+    driftX: 13,
+    driftY: -27,
+  },
+  {
+    left: "74%",
+    top: "20%",
+    size: 17,
+    delay: 5,
+    duration: 16,
+    driftX: -16,
+    driftY: -30,
   },
   {
     left: "89%",
-    size: 11,
-    delay: 8,
-    duration: 15,
-    drift: -30,
-    rotate: 135,
-    opacity: 0.38,
-  },
-  {
-    left: "95%",
-    size: 13,
-    delay: 5,
-    duration: 13,
-    drift: 18,
-    rotate: 240,
-    opacity: 0.41,
-  },
-  {
-    left: "14%",
-    size: 6,
-    delay: 11,
-    duration: 19,
-    drift: 30,
-    rotate: 80,
-    opacity: 0.25,
-  },
-  {
-    left: "32%",
-    size: 7,
-    delay: 13,
-    duration: 18,
-    drift: -25,
-    rotate: 160,
-    opacity: 0.28,
-  },
-  {
-    left: "56%",
-    size: 6,
-    delay: 14,
+    top: "32%",
+    size: 19,
+    delay: 1,
     duration: 17,
-    drift: 24,
-    rotate: 220,
-    opacity: 0.25,
+    driftX: 15,
+    driftY: -25,
+  },
+  {
+    left: "84%",
+    top: "63%",
+    size: 13,
+    delay: 8,
+    duration: 19,
+    driftX: -13,
+    driftY: -31,
   },
   {
     left: "73%",
-    size: 7,
-    delay: 15,
-    duration: 19,
-    drift: -22,
-    rotate: 40,
-    opacity: 0.27,
+    top: "82%",
+    size: 10,
+    delay: 4,
+    duration: 18,
+    driftX: 12,
+    driftY: -26,
+  },
+  {
+    left: "28%",
+    top: "76%",
+    size: 13,
+    delay: 9,
+    duration: 20,
+    driftX: -14,
+    driftY: -29,
+  },
+  {
+    left: "48%",
+    top: "86%",
+    size: 16,
+    delay: 6,
+    duration: 17,
+    driftX: 15,
+    driftY: -25,
   },
 ];
 
-/* =============================================================
+/* -------------------------------------------------------------
+   FALLING ATMOSPHERIC ELEMENTS
+------------------------------------------------------------- */
+
+const fallingElements: FallingElement[] = [
+  {
+    left: "6%",
+    size: 9,
+    delay: 0,
+    duration: 15,
+    drift: 20,
+    rotate: 30,
+    opacity: 0.28,
+  },
+  {
+    left: "18%",
+    size: 7,
+    delay: 4,
+    duration: 18,
+    drift: -16,
+    rotate: 90,
+    opacity: 0.22,
+  },
+  {
+    left: "31%",
+    size: 10,
+    delay: 7,
+    duration: 17,
+    drift: 19,
+    rotate: 140,
+    opacity: 0.25,
+  },
+  {
+    left: "45%",
+    size: 7,
+    delay: 2,
+    duration: 16,
+    drift: -14,
+    rotate: 210,
+    opacity: 0.2,
+  },
+  {
+    left: "58%",
+    size: 9,
+    delay: 6,
+    duration: 18,
+    drift: 17,
+    rotate: 280,
+    opacity: 0.24,
+  },
+  {
+    left: "71%",
+    size: 7,
+    delay: 9,
+    duration: 19,
+    drift: -19,
+    rotate: 50,
+    opacity: 0.2,
+  },
+  {
+    left: "83%",
+    size: 10,
+    delay: 3,
+    duration: 16,
+    drift: 15,
+    rotate: 170,
+    opacity: 0.25,
+  },
+  {
+    left: "94%",
+    size: 8,
+    delay: 8,
+    duration: 18,
+    drift: -16,
+    rotate: 250,
+    opacity: 0.21,
+  },
+];
+
+/* -------------------------------------------------------------
    MAIN COMPONENT
-============================================================= */
+------------------------------------------------------------- */
 
 export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
   const reduceMotion = useReducedMotion();
-  const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 639px)");
-    const update = () => setIsMobile(mediaQuery.matches);
-
-    update();
-    mediaQuery.addEventListener("change", update);
-
-    return () => mediaQuery.removeEventListener("change", update);
-  }, []);
-
-  const shouldAnimate = !reduceMotion;
-  const mobileBubbles = bubbles.slice(0, isMobile ? 12 : 22);
-  const mobileFallingElements = fallingElements.slice(0, isMobile ? 6 : 10);
-  const mobileParticles = particles.slice(0, isMobile ? 5 : 8);
+  /*
+   * Stable arrays. Nothing is created/removed when the Samsung
+   * browser changes its visual viewport.
+   */
+  const visibleBubbles = useMemo(() => bubbles, []);
+  const visibleFalling = useMemo(() => fallingElements, []);
 
   return (
     <motion.section
       className="
+        save-date-root
         fixed
         inset-0
         z-[100]
         flex
-        min-h-[100svh]
         h-[100svh]
+        min-h-[100svh]
+        w-full
         items-center
         justify-center
         overflow-hidden
@@ -317,192 +269,216 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         sm:py-4
         md:px-6
         md:py-5
-        [contain:layout_paint]
       "
       initial={{ opacity: 1 }}
-      exit={{
-        opacity: 0,
-        scale: 1.035,
-        transition: {
-          duration: 0.9,
-          ease: [0.76, 0, 0.24, 1],
-        },
-      }}
+      exit={
+        reduceMotion
+          ? { opacity: 0 }
+          : {
+              opacity: 0,
+              scale: 1.02,
+              transition: {
+                duration: 0.55,
+                ease: [0.76, 0, 0.24, 1],
+              },
+            }
+      }
     >
-      {/* =========================================================
-          RECEPTION BACKGROUND
-      ========================================================= */}
-
-      <motion.div
-        initial={{ scale: 1.08 }}
-        animate={shouldAnimate && !isMobile ? { scale: 1 } : undefined}
-        transition={{
-          duration: 1.6,
-          ease: [0.22, 1, 0.36, 1],
-        }}
-        className="absolute inset-0"
-      >
-        {/* <Image
-          src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=60"
-          alt=""
-          fill
-          loading="eager"
-          quality={60}
-          sizes="100vw"
-          className="h-full w-full object-cover saturate-[0.55] brightness-[1.04]"
-        /> */}
-      </motion.div>
-
-      {/* =========================================================
-          WARM IVORY COLOR WASH
-      ========================================================= */}
+      {/* -------------------------------------------------------
+          STATIC BACKGROUND
+          No remote image and no animated backdrop filter.
+      ------------------------------------------------------- */}
 
       <div
+        aria-hidden="true"
         className="
+          pointer-events-none
+          absolute
+          inset-0
+          bg-[#eee8df]
+        "
+      />
+
+      {/* Soft atmospheric lights.
+          These are static on purpose. Static radial gradients
+          are substantially safer on Android GPU compositors. */}
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          -left-[25%]
+          -top-[20%]
+          h-[75vw]
+          w-[75vw]
+          max-h-[700px]
+          max-w-[700px]
+          rounded-full
+          bg-[#d7b3ae]/25
+          blur-[70px]
+          sm:bg-[#d7b3ae]/32
+          sm:blur-[100px]
+        "
+      />
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          -bottom-[25%]
+          -right-[20%]
+          h-[70vw]
+          w-[70vw]
+          max-h-[680px]
+          max-w-[680px]
+          rounded-full
+          bg-[#aeb8a5]/25
+          blur-[70px]
+          sm:bg-[#aeb8a5]/30
+          sm:blur-[100px]
+        "
+      />
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          right-[8%]
+          top-[10%]
+          h-40
+          w-40
+          rounded-full
+          bg-[#d8b27d]/10
+          blur-[55px]
+          sm:h-56
+          sm:w-56
+          sm:blur-[75px]
+        "
+      />
+
+      {/* Color wash */}
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
           absolute
           inset-0
           bg-[#eee5dc]/65
-          mix-blend-color
+          mix-blend-normal
         "
       />
 
       <div
+        aria-hidden="true"
         className="
+          pointer-events-none
           absolute
           inset-0
-          bg-[linear-gradient(
-            180deg,
-            rgba(249,244,237,.50)_0%,
-            rgba(238,224,214,.28)_40%,
-            rgba(66,53,46,.25)_100%
-          )]
+          bg-[linear-gradient(180deg,rgba(249,244,237,.48)_0%,rgba(238,224,214,.22)_42%,rgba(66,53,46,.20)_100%)]
         "
       />
 
-      {/* =========================================================
-          SOFT PINK AMBIENT LIGHT
-      ========================================================= */}
-
-      <motion.div
-        animate={{
-          x: [0, 20, 0],
-          y: [0, -15, 0],
-          scale: [1, 1.08, 1],
-        }}
-        transition={{
-          duration: 13,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+      {/* Very subtle static light sweep.
+          It is intentionally not animated on mobile. */}
+      <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
-          -left-[20%]
-          -top-[20%]
-          h-[55vw]
-          w-[55vw]
-          max-h-[700px]
-          max-w-[700px]
-          rounded-full
-          bg-[#d7b3ae]/40
-          blur-[80px] sm:blur-[120px]
-        "
-      />
-
-      {/* =========================================================
-          SOFT SAGE AMBIENT LIGHT
-      ========================================================= */}
-
-      <motion.div
-        animate={{
-          x: [0, -20, 0],
-          y: [0, 15, 0],
-          scale: [1, 1.06, 1],
-        }}
-        transition={{
-          duration: 16,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="
-          pointer-events-none
-          absolute
-          -bottom-[20%]
-          -right-[15%]
-          h-[55vw]
-          w-[55vw]
-          max-h-[700px]
-          max-w-[700px]
-          rounded-full
-          bg-[#aeb8a5]/40
-          blur-[80px] sm:blur-[120px]
-        "
-      />
-
-      {/* =========================================================
-          SUBTLE GOLD LIGHT
-      ========================================================= */}
-
-      <motion.div
-        animate={{
-          opacity: [0.08, 0.18, 0.08],
-          scale: [1, 1.08, 1],
-        }}
-        transition={{
-          duration: 9,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="
-          pointer-events-none
-          absolute
-          right-[10%]
-          top-[15%]
-          h-48
-          w-48
-          rounded-full
-          bg-[#d8b27d]/15
-          blur-[60px] sm:blur-[90px]
-        "
-      />
-
-      {/* =========================================================
-          CINEMATIC LIGHT SWEEP
-      ========================================================= */}
-
-      <motion.div
-        animate={{
-          x: ["-20%", "120%"],
-          opacity: [0, 0.16, 0],
-        }}
-        transition={{
-          duration: 18,
-          repeat: Infinity,
-          repeatDelay: 4,
-          ease: "easeInOut",
-        }}
-        className="
-          pointer-events-none
-          absolute
-          left-[-30%]
+          left-[-25%]
           top-[-20%]
-          z-[5]
-          h-[150%]
-          w-[18%]
+          hidden
+          h-[140%]
+          w-[16%]
           rotate-[18deg]
           bg-gradient-to-r
           from-transparent
-          via-white/30
+          via-white/[0.06]
           to-transparent
-          blur-2xl
+          blur-xl
+          md:block
         "
       />
 
-      {/* =========================================================
-          FALLING FLORAL / SNOW-LIKE ATMOSPHERE
-      ========================================================= */}
+      <style>{`
+        .save-date-fall {
+          animation: save-date-fall var(--fall-duration) linear var(--fall-delay)
+            infinite;
+          will-change: transform, opacity;
+        }
 
+        .save-date-bubble {
+          animation: save-date-bubble var(--bubble-duration) ease-in-out
+            var(--bubble-delay) infinite;
+          will-change: transform, opacity;
+        }
+
+        @keyframes save-date-fall {
+          0% {
+            transform: translate3d(0, -10vh, 0) rotate(var(--fall-rotate));
+            opacity: 0;
+          }
+          12% {
+            opacity: var(--fall-opacity);
+          }
+          48% {
+            transform: translate3d(var(--fall-drift), 52vh, 0)
+              rotate(calc(var(--fall-rotate) + 180deg));
+            opacity: calc(var(--fall-opacity) * 0.72);
+          }
+          88% {
+            opacity: var(--fall-opacity);
+          }
+          100% {
+            transform: translate3d(0, 112vh, 0)
+              rotate(calc(var(--fall-rotate) + 360deg));
+            opacity: 0;
+          }
+        }
+
+        @keyframes save-date-bubble {
+          0%,
+          100% {
+            transform: translate3d(0, 0, 0) scale(1);
+            opacity: 0.38;
+          }
+          50% {
+            transform: translate3d(var(--bubble-x), var(--bubble-y), 0)
+              scale(1.05);
+            opacity: 0.68;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .save-date-fall,
+          .save-date-bubble {
+            animation: none !important;
+          }
+        }
+
+        @media (max-width: 639px) {
+          .save-date-fall {
+            animation-duration: calc(var(--fall-duration) + 3s);
+          }
+
+          .save-date-secondary-atmosphere {
+            display: none;
+          }
+
+          .save-date-bubble {
+            animation-duration: calc(var(--bubble-duration) + 4s);
+          }
+        }
+      `}</style>
+
+      {/* -------------------------------------------------------
+          FALLING ATMOSPHERE
+          CSS animation uses transform/opacity only.
+      ------------------------------------------------------- */}
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
@@ -511,139 +487,90 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           overflow-hidden
         "
       >
-        {(reduceMotion ? [] : mobileFallingElements).map((element, index) => (
-          <FallingFloral key={index} {...element} />
-        ))}
-        <div className="hidden sm:block">
-          {shouldAnimate && !isMobile
-            ? fallingElements
-                .slice(10)
-                .map((element, index) => (
-                  <FallingFloral key={index + 10} {...element} />
-                ))
-            : null}
-        </div>
-      </div>
-
-      {/* =========================================================
-          PINK FLOATING BUBBLES
-      ========================================================= */}
-
-      <div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          z-[40]
-          overflow-hidden
-        "
-      >
-        {(reduceMotion ? [] : mobileBubbles).map((bubble, index) => (
-          <FloatingBubble key={index} {...bubble} />
-        ))}
-        <div className="hidden sm:block">
-          {shouldAnimate && !isMobile
-            ? bubbles
-                .slice(22)
-                .map((bubble, index) => (
-                  <FloatingBubble key={index + 22} {...bubble} />
-                ))
-            : null}
-        </div>
-      </div>
-
-      {/* =========================================================
-          LIGHT PARTICLES
-      ========================================================= */}
-
-      <div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          z-[41]
-        "
-      >
-        {(reduceMotion ? [] : mobileParticles).map((particle, index) => (
-          <motion.span
+        {visibleFalling.map((element, index) => (
+          <FallingFloral
             key={index}
-            className="
-              absolute
-              rounded-full
-              bg-white
-            "
-            style={{
-              left: particle.left,
-              top: particle.top,
-              width: index % 5 === 0 ? 2 : 1,
-              height: index % 5 === 0 ? 2 : 1,
-            }}
-            animate={{
-              opacity: [0.03, 0.35, 0.03],
-              scale: [0.6, 1.3, 0.6],
-              y: [0, -8, 0],
-            }}
-            transition={{
-              duration: particle.duration,
-              delay: particle.delay,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+            {...element}
+            reduceMotion={!!reduceMotion}
+            index={index}
           />
         ))}
       </div>
 
-      {/* =========================================================
-          MAIN INVITATION CARD
-      ========================================================= */}
+      {/* -------------------------------------------------------
+          BUBBLES
+      ------------------------------------------------------- */}
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          z-[20]
+          overflow-hidden
+        "
+      >
+        {visibleBubbles.map((bubble, index) => (
+          <FloatingBubble
+            key={index}
+            {...bubble}
+            reduceMotion={!!reduceMotion}
+            index={index}
+          />
+        ))}
+      </div>
+
+      {/* -------------------------------------------------------
+          INVITATION CARD
+      ------------------------------------------------------- */}
 
       <motion.div
-        initial={{
-          opacity: 0,
-          y: 45,
-          scale: 0.96,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-          scale: 1,
-        }}
-        transition={{
-          duration: 1.15,
-          delay: 0.15,
-          ease: [0.22, 1, 0.36, 1],
-        }}
+        initial={
+          reduceMotion
+            ? { opacity: 0 }
+            : {
+                opacity: 0,
+                y: 26,
+                scale: 0.985,
+              }
+        }
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={
+          reduceMotion
+            ? { duration: 0.2 }
+            : {
+                duration: 0.8,
+                delay: 0.08,
+                ease: [0.22, 1, 0.36, 1],
+              }
+        }
         className="
           relative
           z-30
           mx-auto
+          flex
           w-full
           max-w-[590px]
+          flex-col
+          items-center
           overflow-hidden
           border
           border-[#fffaf4]/80
-          bg-[#faf6ef]/90
+          bg-[#faf6ef]/95
           px-3.5
           py-4
           text-center
-          max-h-[calc(100svh-4px)]
+          shadow-[0_22px_65px_rgba(67,48,39,.18)]
           sm:px-10
           sm:py-8
-          sm:max-h-[calc(100svh-12px)]
-          md:max-h-none
-          shadow-[0_25px_70px_rgba(67,48,39,.22)] sm:shadow-[0_35px_95px_rgba(67,48,39,.24)]
-          backdrop-blur-[2px] sm:backdrop-blur-md md:backdrop-blur-xl
+          sm:shadow-[0_30px_80px_rgba(67,48,39,.20)]
           max-[380px]:px-3
           max-[380px]:py-3
-          max-[380px]:max-h-[calc(100svh-4px)]
-          
         "
       >
-        {/* =======================================================
-            INNER FRAME
-        ======================================================= */}
-
+        {/* Inner frame */}
         <div
+          aria-hidden="true"
           className="
             pointer-events-none
             absolute
@@ -654,6 +581,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         />
 
         <div
+          aria-hidden="true"
           className="
             pointer-events-none
             absolute
@@ -664,32 +592,39 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         />
 
         {/* Corner details */}
+        <div
+          aria-hidden="true"
+          className="absolute left-6 top-6 text-[#b68b70]/60"
+        >
+          ✧
+        </div>
 
-        <div className="absolute left-6 top-6 text-[#b68b70]/60">✧</div>
+        <div
+          aria-hidden="true"
+          className="absolute right-6 top-6 text-[#b68b70]/60"
+        >
+          ✧
+        </div>
 
-        <div className="absolute right-6 top-6 text-[#b68b70]/60">✧</div>
+        <div
+          aria-hidden="true"
+          className="absolute bottom-6 left-6 text-[#b68b70]/60"
+        >
+          ✧
+        </div>
 
-        <div className="absolute bottom-6 left-6 text-[#b68b70]/60">✧</div>
+        <div
+          aria-hidden="true"
+          className="absolute bottom-6 right-6 text-[#b68b70]/60"
+        >
+          ✧
+        </div>
 
-        <div className="absolute bottom-6 right-6 text-[#b68b70]/60">✧</div>
-
-        {/* =======================================================
-            HEADER
-        ======================================================= */}
-
+        {/* Header */}
         <motion.div
-          initial={{
-            opacity: 0,
-            y: 15,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            delay: 0.55,
-            duration: 0.7,
-          }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.45 }}
           className="relative"
         >
           <p
@@ -703,37 +638,26 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             A new chapter begins
           </p>
 
-          <div className="mx-auto mt-4 flex items-center justify-center gap-3">
+          <div className="mx-auto mt-3 flex items-center justify-center gap-3">
             <span className="h-px w-9 bg-[#c9aaa7]" />
-
             <span className="text-[16px] text-[#b98579]">❀</span>
-
             <span className="h-px w-9 bg-[#c9aaa7]" />
           </div>
         </motion.div>
 
-        {/* =======================================================
-            TITLE
-        ======================================================= */}
-
+        {/* Title */}
         <motion.h1
-          initial={{
-            opacity: 0,
-            y: 25,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{
-            delay: 0.68,
-            duration: 0.9,
+            delay: 0.34,
+            duration: 0.55,
             ease: [0.22, 1, 0.36, 1],
           }}
           className="
-            font-display
             relative
             mt-3
+            font-display
             text-[clamp(45px,11vw,100px)]
             leading-[0.8]
             tracking-[-0.065em]
@@ -745,58 +669,32 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           <span className="serif-italic font-light text-[#b87e74]">Date</span>
         </motion.h1>
 
-        {/* =======================================================
-            ORNAMENT
-        ======================================================= */}
-
+        {/* Ornament */}
         <motion.div
-          initial={{
-            opacity: 0,
-            scaleX: 0,
-          }}
-          animate={{
-            opacity: 1,
-            scaleX: 1,
-          }}
-          transition={{
-            delay: 0.85,
-            duration: 0.7,
-          }}
-          className="
-            mx-auto
-            mt-4
-            flex
-            items-center
-            justify-center
-            gap-3
-          "
+          initial={{ opacity: 0, scaleX: 0.7 }}
+          animate={{ opacity: 1, scaleX: 1 }}
+          transition={{ delay: 0.48, duration: 0.45 }}
+          className="mx-auto mt-4 flex items-center justify-center gap-3"
         >
           <span className="h-px w-12 bg-[#c9aaa7]" />
-
           <span className="text-[#c08b78]">❧</span>
-
           <span className="h-px w-12 bg-[#c9aaa7]" />
         </motion.div>
 
-        {/* =======================================================
-            COUPLE
-        ======================================================= */}
-
+        {/* Couple */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{
-            delay: 0.9,
-            duration: 0.8,
-          }}
-          className="relative mt-6"
+          transition={{ delay: 0.54, duration: 0.5 }}
+          className="relative mt-5"
         >
           <p
             className="
               font-display
-              text-[25px] sm:text-[28px]
+              text-[25px]
               tracking-[-0.02em]
               text-[#39332f]
+              sm:text-[28px]
             "
           >
             Aneena
@@ -807,197 +705,196 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           <p
             className="
               mt-1
-              text-[9px] sm:text-[10px]
+              text-[9px]
               uppercase
               tracking-[0.34em]
               text-[#82746c]
+              sm:text-[10px]
             "
           >
             15 November 2026
           </p>
         </motion.div>
 
-        {/* =======================================================
-            IMAGE
-        ======================================================= */}
+        {/* -----------------------------------------------------
+            IMAGE PLACEHOLDER
+            The photograph is intentionally commented out.
+            The wrapper is also removed, so it cannot leave an
+            empty aspect-ratio box that changes card height.
+        ----------------------------------------------------- */}
 
+        {/*
         <motion.div
-          initial={{ opacity: 0, scale: 0.97, y: 18 }}
+          initial={{ opacity: 0, scale: 0.98, y: 12 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{
-            delay: 1,
-            duration: 1,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="
-            relative
-            mx-auto
-            mt-4
-            aspect-[4/3]
-            max-w-[425px]
-            sm:mt-6
-            sm:aspect-[4/3]
-          "
+          transition={{ delay: 0.7, duration: 0.65 }}
+          className="relative mx-auto mt-5 aspect-[4/3] w-full max-w-[425px]"
         >
-          {/* Very subtle ambient extension behind the image */}
-          <div
-            className="
-              pointer-events-none
-              absolute
-              -inset-2
-              rounded-[inherit]
-              bg-[#d7b3ae]/20
-              blur-xl
-              sm:-inset-3
-              sm:bg-[#d7b3ae]/25
-            "
-          />
+          <div className="pointer-events-none absolute -inset-2 bg-[#d7b3ae]/15 blur-lg" />
 
-          {/* Photograph */}
           <div className="relative h-full w-full overflow-hidden">
-            <motion.div
-              className="absolute inset-0"
-              animate={
-                shouldAnimate && !isMobile
-                  ? { scale: [1, 1.012, 1] }
-                  : undefined
-              }
-              transition={
-                reduceMotion
-                  ? undefined
-                  : { duration: 18, repeat: Infinity, ease: "easeInOut" }
-              }
-            >
-              {/* <Image
-                src="/images/save-date.webp"
-                alt="Wedding table setting"
-                fill
-                priority
-                quality={72}
-                sizes="(max-width: 640px) calc(100vw - 32px), 425px"
-                className="object-cover object-[center_38%]"
-              /> */}
-            </motion.div>
-
-            {/* Extremely soft blending at the edges */}
-            <div
-              className="
-                pointer-events-none
-                absolute
-                inset-0
-                bg-[radial-gradient(
-                  ellipse_at_center,
-                  transparent 68%,
-                  rgba(250,246,239,0.08) 82%,
-                  rgba(250,246,239,0.28) 100%
-                )]
-              "
+            <Image
+              src="/images/save-date.webp"
+              alt="Wedding table setting"
+              fill
+              priority
+              quality={72}
+              sizes="(max-width: 640px) calc(100vw - 32px), 425px"
+              className="object-cover object-[center_38%]"
             />
 
-            {/* Gentle fade where image meets the card */}
-            <div
-              className="
-                pointer-events-none
-                absolute
-                inset-x-0
-                bottom-0
-                h-[10%]
-                bg-gradient-to-t
-                from-[#faf6ef]/10
-                to-transparent
-              "
-            />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_68%,rgba(250,246,239,.08)_82%,rgba(250,246,239,.28)_100%)]" />
 
-            <div
-              className="
-                pointer-events-none
-                absolute
-                inset-x-0
-                top-0
-                h-[7%]
-                bg-gradient-to-b
-                from-[#faf6ef]/20
-                to-transparent
-              "
-            />
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[10%] bg-gradient-to-t from-[#faf6ef]/10 to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-[7%] bg-gradient-to-b from-[#faf6ef]/20 to-transparent" />
 
-            {/* Subtle inner photograph frame */}
-            <div
-              className="
-                pointer-events-none
-                absolute
-                inset-[9px]
-                border
-                border-white/45
-              "
-            />
+            <div className="pointer-events-none absolute inset-[9px] border border-white/45" />
+            <div className="pointer-events-none absolute inset-[13px] border border-[#ead8cf]/35" />
 
-            <div
-              className="
-                pointer-events-none
-                absolute
-                inset-[13px]
-                border
-                border-[#ead8cf]/35
-              "
-            />
-
-            {/* Quiet corner accents matching the invitation frame */}
             <div className="pointer-events-none absolute left-[9px] top-[9px] h-5 w-5 border-l border-t border-white/60" />
             <div className="pointer-events-none absolute right-[9px] top-[9px] h-5 w-5 border-r border-t border-white/60" />
             <div className="pointer-events-none absolute bottom-[9px] left-[9px] h-5 w-5 border-b border-l border-white/60" />
             <div className="pointer-events-none absolute bottom-[9px] right-[9px] h-5 w-5 border-b border-r border-white/60" />
           </div>
         </motion.div>
+        */}
 
-        {/* =======================================================
-            OPEN INVITATION
-        ======================================================= */}
-
-        <motion.button
-          onClick={onOpen}
-          initial={{
-            opacity: 0,
-            y: 15,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            delay: 1.18,
-            duration: 0.7,
-          }}
-          whileHover={{
-            y: -2,
-          }}
-          whileTap={{
-            scale: 0.97,
-          }}
+        {/* -----------------------------------------------------
+            WEDDING PHOTOGRAPH
+            Kept static to avoid mobile GPU/compositor glitches.
+        ----------------------------------------------------- */}
+        <div
           className="
-    group
-    relative
-    mt-4
-    inline-flex
-    items-center
-    justify-center
-    gap-3
-    overflow-hidden
-    border
-    border-[#b88f88]/55
-    bg-[#c79a92]
-    px-5
-    py-[11px]
-    text-[8px]
-    uppercase
-    tracking-[0.24em]
-    text-white
-    shadow-[0_7px_22px_rgba(130,89,80,.10)]
-    transition-all
-    duration-500
-    hover:bg-[#bd8d85]
-    hover:border-[#aa7d75]/65
-  "
+            relative
+            mx-auto
+            mt-5
+            aspect-[4/3]
+            w-full
+            max-w-[425px]
+            overflow-hidden
+          "
+        >
+          <img
+            src="/images/save-date.webp"
+            alt="Wedding table setting"
+            loading="eager"
+            decoding="async"
+            className="h-full w-full object-cover object-[center_38%]"
+          />
+
+          <div
+            aria-hidden="true"
+            className="
+              pointer-events-none
+              absolute
+              inset-0
+              bg-[radial-gradient(ellipse_at_center,transparent_68%,rgba(250,246,239,.08)_82%,rgba(250,246,239,.28)_100%)]
+            "
+          />
+
+          <div
+            aria-hidden="true"
+            className="
+              pointer-events-none
+              absolute
+              inset-x-0
+              bottom-0
+              h-[10%]
+              bg-gradient-to-t
+              from-[#faf6ef]/10
+              to-transparent
+            "
+          />
+
+          <div
+            aria-hidden="true"
+            className="
+              pointer-events-none
+              absolute
+              inset-x-0
+              top-0
+              h-[7%]
+              bg-gradient-to-b
+              from-[#faf6ef]/20
+              to-transparent
+            "
+          />
+
+          <div
+            aria-hidden="true"
+            className="
+              pointer-events-none
+              absolute
+              inset-[9px]
+              border
+              border-white/45
+            "
+          />
+
+          <div
+            aria-hidden="true"
+            className="
+              pointer-events-none
+              absolute
+              inset-[13px]
+              border
+              border-[#ead8cf]/35
+            "
+          />
+
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute left-[9px] top-[9px] h-5 w-5 border-l border-t border-white/60"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute right-[9px] top-[9px] h-5 w-5 border-r border-t border-white/60"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-[9px] left-[9px] h-5 w-5 border-b border-l border-white/60"
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-[9px] right-[9px] h-5 w-5 border-b border-r border-white/60"
+          />
+        </div>
+
+        {/* Open invitation */}
+        <motion.button
+          type="button"
+          onClick={onOpen}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7, duration: 0.45 }}
+          whileHover={reduceMotion ? undefined : { y: -1 }}
+          whileTap={reduceMotion ? undefined : { scale: 0.985 }}
+          className="
+            group
+            relative
+            mt-6
+            inline-flex
+            min-h-[40px]
+            items-center
+            justify-center
+            gap-3
+            overflow-hidden
+            border
+            border-[#b88f88]/55
+            bg-[#c79a92]
+            px-5
+            py-[11px]
+            text-[8px]
+            uppercase
+            tracking-[0.24em]
+            text-white
+            shadow-[0_7px_22px_rgba(130,89,80,.10)]
+            transition-colors
+            duration-300
+            hover:bg-[#bd8d85]
+            hover:border-[#aa7d75]/65
+            touch-manipulation
+          "
         >
           <span className="relative z-10">Open invitation</span>
 
@@ -1005,53 +902,41 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             size={12}
             strokeWidth={1.4}
             className="
-      relative
-      z-10
-      transition-all
-      duration-500
-      group-hover:-translate-y-0.5
-      group-hover:translate-x-0.5
-      group-hover:rotate-45
-    "
+              relative
+              z-10
+              transition-transform
+              duration-300
+              group-hover:-translate-y-0.5
+              group-hover:translate-x-0.5
+              group-hover:rotate-45
+            "
           />
 
-          {/* Very subtle satin-like light sweep */}
           <span
+            aria-hidden="true"
             className="
-      pointer-events-none
-      absolute
-      inset-0
-      -translate-x-full
-      bg-white/[0.12]
-      transition-transform
-      duration-700
-      group-hover:translate-x-full
-    "
+              pointer-events-none
+              absolute
+              inset-0
+              -translate-x-full
+              bg-white/[0.10]
+              transition-transform
+              duration-500
+              group-hover:translate-x-full
+            "
           />
         </motion.button>
 
-        {/* =======================================================
-            FOOTER ORNAMENT
-        ======================================================= */}
-
+        {/* Footer ornament */}
         <motion.div
-          initial={{
-            opacity: 0,
-          }}
-          animate={{
-            opacity: 1,
-          }}
-          transition={{
-            delay: 1.3,
-            duration: 0.8,
-          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.82, duration: 0.5 }}
           className="mt-4"
         >
           <div className="flex items-center justify-center gap-3">
             <span className="h-px w-8 bg-[#d0c0b5]" />
-
             <span className="text-[17px] text-[#b88676]">❀</span>
-
             <span className="h-px w-8 bg-[#d0c0b5]" />
           </div>
 
@@ -1069,41 +954,32 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         </motion.div>
       </motion.div>
 
-      {/* =========================================================
-          GRAIN
-      ========================================================= */}
-
+      {/* -------------------------------------------------------
+          CSS-ONLY FILM GRAIN
+          No SVG filter / feTurbulence.
+      ------------------------------------------------------- */}
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           inset-0
           z-[60]
-          opacity-[0.035]
+          opacity-[0.025]
+          bg-[radial-gradient(rgba(255,255,255,.55)_0.5px,transparent_0.5px)]
+          [background-size:5px_5px]
         "
-      >
-        <svg className="h-full w-full">
-          <filter id="grain">
-            <feTurbulence
-              type="fractalNoise"
-              baseFrequency="0.9"
-              numOctaves="4"
-              stitchTiles="stitch"
-            />
-          </filter>
-
-          <rect width="100%" height="100%" filter="url(#grain)" />
-        </svg>
-      </div>
+      />
     </motion.section>
   );
 }
 
-/* =============================================================
-   FALLING FLORAL / SNOW-LIKE ELEMENT
-============================================================= */
+/* -------------------------------------------------------------
+   FALLING ELEMENT
+------------------------------------------------------------- */
 
 function FallingFloral({
+  index,
   left,
   size,
   delay,
@@ -1111,203 +987,80 @@ function FallingFloral({
   drift,
   rotate,
   opacity,
-}: {
-  left: string;
-  size: number;
-  delay: number;
-  duration: number;
-  drift: number;
-  rotate: number;
-  opacity: number;
-}) {
+  reduceMotion,
+}: FallingElement & { reduceMotion: boolean; index: number }) {
   return (
-    <motion.span
-      className="
-        absolute
-        top-[-24px]
-        block
-      "
-      style={{
-        left,
-        width: size,
-        height: size,
-      }}
-      animate={{
-        y: ["0vh", "112vh"],
-        x: [0, drift, drift * -0.45, drift * 0.65, 0],
-        rotate: [rotate, rotate + 80, rotate + 170, rotate + 260, rotate + 360],
-        opacity: [0, opacity, opacity * 0.7, opacity, 0],
-      }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: "linear",
-      }}
+    <span
+      className={[
+        "absolute top-[-20px] block",
+        index >= 4 ? "save-date-secondary-atmosphere" : "",
+        reduceMotion ? "" : "save-date-fall",
+      ].join(" ")}
+      style={
+        {
+          left,
+          width: size,
+          height: size,
+          opacity: reduceMotion ? opacity * 0.55 : undefined,
+          ["--fall-duration" as string]: `${duration}s`,
+          ["--fall-delay" as string]: `${delay}s`,
+          ["--fall-drift" as string]: `${drift}px`,
+          ["--fall-rotate" as string]: `${rotate}deg`,
+          ["--fall-opacity" as string]: opacity,
+        } as CSSProperties
+      }
     >
-      <span
-        className="
-          absolute
-          left-1/2
-          top-0
-          h-full
-          w-[1px]
-          -translate-x-1/2
-          bg-[#f7dce2]/70
-        "
-      />
-
-      <span
-        className="
-          absolute
-          left-0
-          top-1/2
-          h-[1px]
-          w-full
-          -translate-y-1/2
-          bg-[#f7dce2]/70
-        "
-      />
-
-      <span
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          h-[1px]
-          w-full
-          -translate-x-1/2
-          -translate-y-1/2
-          rotate-45
-          bg-[#f7dce2]/55
-        "
-      />
-
-      <span
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          h-[1px]
-          w-full
-          -translate-x-1/2
-          -translate-y-1/2
-          -rotate-45
-          bg-[#f7dce2]/55
-        "
-      />
-
-      <span
-        className="
-          absolute
-          left-1/2
-          top-1/2
-          h-[22%]
-          w-[22%]
-          -translate-x-1/2
-          -translate-y-1/2
-          rounded-full
-          bg-[#efc1cc]/70
-        "
-      />
-    </motion.span>
+      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#f7dce2]/60" />
+      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-[#f7dce2]/60" />
+      <span className="absolute left-1/2 top-1/2 h-px w-full -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#f7dce2]/45" />
+      <span className="absolute left-1/2 top-1/2 h-px w-full -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-[#f7dce2]/45" />
+      <span className="absolute left-1/2 top-1/2 h-[22%] w-[22%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#efc1cc]/60" />
+    </span>
   );
 }
 
-/* =============================================================
-   PINK TRANSLUCENT GLASS BUBBLE
-============================================================= */
+/* -------------------------------------------------------------
+   FLOATING BUBBLE
+------------------------------------------------------------- */
 
 function FloatingBubble({
-  startX,
-  startY,
+  index,
+  left,
+  top,
   size,
   delay,
   duration,
-}: {
-  startX: string;
-  startY: string;
-  size: number;
-  delay: number;
-  duration: number;
-}) {
+  driftX,
+  driftY,
+  reduceMotion,
+}: Bubble & { reduceMotion: boolean; index: number }) {
   return (
-    <motion.span
-      className="
-        absolute
-        overflow-hidden
-        rounded-full
-        border
-        border-[#f6c5d2]/75
-        bg-[#e9aebe]/[0.22]
-        shadow-[0_0_22px_rgba(225,157,178,0.28)]
-        backdrop-blur-[1px]
-        mix-blend-screen
-      "
-      style={{
-        left: startX,
-        top: startY,
-        width: size,
-        height: size,
-      }}
-      animate={{
-        x: [0, 18, 42, 24, 0],
-        y: [0, -28, -58, -22, 0],
-        scale: [1, 1.12, 0.94, 1.08, 1],
-        opacity: [0.42, 0.78, 0.52, 0.72, 0.42],
-      }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: "easeInOut",
-      }}
+    <span
+      className={[
+        "absolute overflow-hidden rounded-full border border-[#f6c5d2]/60 bg-[#e9aebe]/[0.16] shadow-[0_0_14px_rgba(225,157,178,0.16)] save-date-bubble-node",
+        reduceMotion ? "" : "save-date-bubble",
+      ].join(" ")}
+      style={
+        {
+          left,
+          top,
+          width: size,
+          height: size,
+          opacity: reduceMotion ? 0.32 : undefined,
+          ["--bubble-duration" as string]: `${duration}s`,
+          ["--bubble-delay" as string]: `${delay}s`,
+          ["--bubble-x" as string]: `${driftX}px`,
+          ["--bubble-y" as string]: `${driftY}px`,
+        } as CSSProperties
+      }
     >
-      <span
-        className="
-          absolute
-          inset-[12%]
-          rounded-full
-          bg-[#efb7c7]/[0.14]
-          blur-[2px]
-        "
-      />
+      <span className="absolute inset-[15%] rounded-full bg-[#efb7c7]/[0.10]" />
 
-      <span
-        className="
-          absolute
-          left-[17%]
-          top-[14%]
-          h-[25%]
-          w-[25%]
-          rounded-full
-          bg-white/80
-          blur-[1px]
-        "
-      />
+      <span className="absolute left-[18%] top-[15%] h-[24%] w-[24%] rounded-full bg-white/65" />
 
-      <span
-        className="
-          absolute
-          bottom-[16%]
-          right-[15%]
-          h-[17%]
-          w-[17%]
-          rounded-full
-          bg-[#f4b9ca]/70
-          blur-[1px]
-        "
-      />
+      <span className="absolute bottom-[17%] right-[16%] h-[16%] w-[16%] rounded-full bg-[#f4b9ca]/50" />
 
-      <span
-        className="
-          absolute
-          inset-[18%]
-          rounded-full
-          border
-          border-[#ffdce5]/35
-        "
-      />
-    </motion.span>
+      <span className="absolute inset-[18%] rounded-full border border-[#ffdce5]/25" />
+    </span>
   );
 }
