@@ -1,9 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
-import { useRef } from "react";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 /* =============================================================
    SMALL ATMOSPHERIC BUBBLES
@@ -281,6 +281,22 @@ const fallingElements = [
 
 export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
   const reduceMotion = useReducedMotion();
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 639px)");
+    const update = () => setIsMobile(mediaQuery.matches);
+
+    update();
+    mediaQuery.addEventListener("change", update);
+
+    return () => mediaQuery.removeEventListener("change", update);
+  }, []);
+
+  const shouldAnimate = !reduceMotion;
+  const mobileBubbles = bubbles.slice(0, isMobile ? 12 : 22);
+  const mobileFallingElements = fallingElements.slice(0, isMobile ? 6 : 10);
+  const mobileParticles = particles.slice(0, isMobile ? 5 : 8);
 
   return (
     <motion.section
@@ -290,23 +306,25 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         z-[100]
         flex
         min-h-[100svh]
-        min-h-screen
+        h-[100svh]
         items-center
         justify-center
         overflow-hidden
-        overscroll-none
         bg-[#eee8df]
+        px-2.5
+        py-2
+        sm:px-4
+        sm:py-4
+        md:px-6
+        md:py-5
         [contain:layout_paint]
-        px-4
-        py-5
-        sm:px-6
       "
       initial={{ opacity: 1 }}
       exit={{
         opacity: 0,
-        scale: 1.02,
+        scale: 1.035,
         transition: {
-          duration: 0.7,
+          duration: 0.9,
           ease: [0.76, 0, 0.24, 1],
         },
       }}
@@ -316,24 +334,22 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
       ========================================================= */}
 
       <motion.div
-        initial={{ scale: reduceMotion ? 1 : 1.03 }}
-        animate={{ scale: 1 }}
+        initial={{ scale: 1.08 }}
+        animate={shouldAnimate && !isMobile ? { scale: 1 } : undefined}
         transition={{
-          duration: reduceMotion ? 0 : 1.2,
+          duration: 1.6,
           ease: [0.22, 1, 0.36, 1],
         }}
-        className="absolute inset-0 will-change-transform"
+        className="absolute inset-0"
       >
-        <img
-          src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=78"
+        <Image
+          src="https://images.unsplash.com/photo-1519167758481-83f550bb49b3?auto=format&fit=crop&w=1400&q=60"
           alt=""
-          className="
-            h-full
-            w-full
-            object-cover
-            saturate-[0.55]
-            brightness-[1.04]
-          "
+          fill
+          loading="eager"
+          quality={60}
+          sizes="100vw"
+          className="h-full w-full object-cover saturate-[0.55] brightness-[1.04]"
         />
       </motion.div>
 
@@ -375,7 +391,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         }}
         transition={{
           duration: 13,
-          repeat: reduceMotion ? 0 : Infinity,
+          repeat: Infinity,
           ease: "easeInOut",
         }}
         className="
@@ -389,7 +405,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           max-w-[700px]
           rounded-full
           bg-[#d7b3ae]/40
-          blur-[45px] sm:blur-[80px] md:blur-[120px]
+          blur-[80px] sm:blur-[120px]
         "
       />
 
@@ -405,7 +421,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         }}
         transition={{
           duration: 16,
-          repeat: reduceMotion ? 0 : Infinity,
+          repeat: Infinity,
           ease: "easeInOut",
         }}
         className="
@@ -419,7 +435,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           max-w-[700px]
           rounded-full
           bg-[#aeb8a5]/40
-          blur-[45px] sm:blur-[80px] md:blur-[120px]
+          blur-[80px] sm:blur-[120px]
         "
       />
 
@@ -434,7 +450,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         }}
         transition={{
           duration: 9,
-          repeat: reduceMotion ? 0 : Infinity,
+          repeat: Infinity,
           ease: "easeInOut",
         }}
         className="
@@ -446,7 +462,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           w-48
           rounded-full
           bg-[#d8b27d]/15
-          blur-[35px] sm:blur-[60px] md:blur-[90px]
+          blur-[60px] sm:blur-[90px]
         "
       />
 
@@ -461,15 +477,13 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
         }}
         transition={{
           duration: 18,
-          repeat: reduceMotion ? 0 : Infinity,
+          repeat: Infinity,
           repeatDelay: 4,
           ease: "easeInOut",
         }}
         className="
           pointer-events-none
           absolute
-          hidden
-          sm:block
           left-[-30%]
           top-[-20%]
           z-[5]
@@ -480,7 +494,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           from-transparent
           via-white/30
           to-transparent
-          blur-lg sm:blur-xl md:blur-2xl
+          blur-2xl
         "
       />
 
@@ -497,11 +511,18 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           overflow-hidden
         "
       >
-        {fallingElements.map((element, index) => (
-          <span key={index} className={index > 7 ? "hidden sm:block" : "block"}>
-            <FallingFloral {...element} />
-          </span>
+        {(reduceMotion ? [] : mobileFallingElements).map((element, index) => (
+          <FallingFloral key={index} {...element} />
         ))}
+        <div className="hidden sm:block">
+          {shouldAnimate && !isMobile
+            ? fallingElements
+                .slice(10)
+                .map((element, index) => (
+                  <FallingFloral key={index + 10} {...element} />
+                ))
+            : null}
+        </div>
       </div>
 
       {/* =========================================================
@@ -517,14 +538,18 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           overflow-hidden
         "
       >
-        {bubbles.map((bubble, index) => (
-          <span
-            key={index}
-            className={index > 11 ? "hidden sm:block" : "block"}
-          >
-            <FloatingBubble {...bubble} />
-          </span>
+        {(reduceMotion ? [] : mobileBubbles).map((bubble, index) => (
+          <FloatingBubble key={index} {...bubble} />
         ))}
+        <div className="hidden sm:block">
+          {shouldAnimate && !isMobile
+            ? bubbles
+                .slice(22)
+                .map((bubble, index) => (
+                  <FloatingBubble key={index + 22} {...bubble} />
+                ))
+            : null}
+        </div>
       </div>
 
       {/* =========================================================
@@ -539,15 +564,14 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           z-[41]
         "
       >
-        {particles.map((particle, index) => (
+        {(reduceMotion ? [] : mobileParticles).map((particle, index) => (
           <motion.span
             key={index}
-            className={`
+            className="
               absolute
               rounded-full
               bg-white
-              ${index > 7 ? "hidden sm:block" : "block"}
-            `}
+            "
             style={{
               left: particle.left,
               top: particle.top,
@@ -560,9 +584,9 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               y: [0, -8, 0],
             }}
             transition={{
-              duration: reduceMotion ? 0 : particle.duration,
-              delay: reduceMotion ? 0 : particle.delay,
-              repeat: reduceMotion ? 0 : Infinity,
+              duration: particle.duration,
+              delay: particle.delay,
+              repeat: Infinity,
               ease: "easeInOut",
             }}
           />
@@ -599,21 +623,20 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           border
           border-[#fffaf4]/80
           bg-[#faf6ef]/90
-          px-4
-          py-5
+          px-3.5
+          py-4
           text-center
-          shadow-[0_24px_70px_rgba(67,48,39,.18)]
-          max-h-[calc(100svh-16px)]
-          sm:max-h-none
-          backdrop-blur-none
-          sm:shadow-[0_35px_95px_rgba(67,48,39,.22)]
-          sm:backdrop-blur-md
-          md:shadow-[0_45px_120px_rgba(67,48,39,.25)]
-          md:backdrop-blur-2xl
+          max-h-[calc(100svh-12px)]
+          sm:px-10
+          sm:py-8
+          sm:max-h-[calc(100svh-24px)]
+          md:max-h-none
+          shadow-[0_25px_70px_rgba(67,48,39,.22)] sm:shadow-[0_35px_95px_rgba(67,48,39,.24)]
+          backdrop-blur-[2px] sm:backdrop-blur-md md:backdrop-blur-xl
           max-[380px]:px-3
-          max-[380px]:py-4
-          sm:px-12
-          sm:py-11
+          max-[380px]:py-3
+          max-[380px]:max-h-[calc(100svh-8px)]
+          
         "
       >
         {/* =======================================================
@@ -675,6 +698,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               uppercase
               tracking-[0.42em]
               text-[#83736b]
+              mt-3
             "
           >
             A new chapter begins
@@ -710,11 +734,9 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           className="
             font-display
             relative
-            mt-4
-            text-[clamp(48px,11vw,100px)]
+            mt-3
+            text-[clamp(45px,11vw,100px)]
             leading-[0.8]
-            max-[380px]:text-[48px]
-            sm:mt-6
             tracking-[-0.065em]
             text-[#39332f]
           "
@@ -743,11 +765,9 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           }}
           className="
             mx-auto
-            mt-5
+            mt-4
             flex
             items-center
-            max-[380px]:mt-4
-            sm:mt-7
             justify-center
             gap-3
           "
@@ -770,15 +790,13 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             delay: 0.9,
             duration: 0.8,
           }}
-          className="relative mt-4 max-[380px]:mt-3 sm:mt-6"
+          className="relative mt-6"
         >
           <p
             className="
               font-display
-              text-[26px]
+              text-[25px] sm:text-[28px]
               tracking-[-0.02em]
-              max-[380px]:text-[24px]
-              sm:text-[28px]
               text-[#39332f]
             "
           >
@@ -789,11 +807,8 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
 
           <p
             className="
-              mt-1.5
-              text-[9px]
-              max-[380px]:text-[8px]
-              sm:mt-2
-              sm:text-[10px]
+              mt-1
+              text-[9px] sm:text-[10px]
               uppercase
               tracking-[0.34em]
               text-[#82746c]
@@ -818,12 +833,10 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           className="
             relative
             mx-auto
-            mt-5
-            aspect-[16/10]
+            mt-4
+            aspect-[16/9]
             max-w-[425px]
-            max-[380px]:mt-4
-            max-[380px]:aspect-[16/9]
-            sm:mt-8
+            sm:mt-6
             sm:aspect-[4/3]
           "
         >
@@ -832,32 +845,37 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             className="
               pointer-events-none
               absolute
-              -inset-3
+              -inset-2
               rounded-[inherit]
-              bg-[#d7b3ae]/10
-              blur-2xl
-              sm:blur-3xl
+              bg-[#d7b3ae]/20
+              blur-xl
+              sm:-inset-3
+              sm:bg-[#d7b3ae]/25
             "
           />
 
           {/* Photograph */}
           <div className="relative h-full w-full overflow-hidden">
             <motion.div
-              animate={reduceMotion ? undefined : { scale: [1, 1.012, 1] }}
-              transition={{
-                duration: 16,
-                repeat: reduceMotion ? 0 : Infinity,
-                ease: "easeInOut",
-              }}
               className="absolute inset-0"
+              animate={
+                shouldAnimate && !isMobile
+                  ? { scale: [1, 1.012, 1] }
+                  : undefined
+              }
+              transition={
+                reduceMotion
+                  ? undefined
+                  : { duration: 18, repeat: Infinity, ease: "easeInOut" }
+              }
             >
               <Image
                 src="/images/save-date.jpeg"
                 alt="Wedding table setting"
                 fill
                 priority
-                sizes="(max-width: 640px) calc(100vw - 48px), 425px"
-                quality={78}
+                quality={72}
+                sizes="(max-width: 640px) calc(100vw - 32px), 425px"
                 className="object-cover"
               />
             </motion.div>
@@ -960,10 +978,8 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           className="
     group
     relative
-    mt-5
+    mt-4
     inline-flex
-    max-[380px]:mt-4
-    sm:mt-7
     items-center
     justify-center
     gap-3
@@ -1030,7 +1046,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             delay: 1.3,
             duration: 0.8,
           }}
-          className="mt-5 max-[380px]:mt-4 sm:mt-7"
+          className="mt-4"
         >
           <div className="flex items-center justify-center gap-3">
             <span className="h-px w-8 bg-[#d0c0b5]" />
@@ -1111,7 +1127,6 @@ function FallingFloral({
         absolute
         top-[-24px]
         block
-        will-change-transform
       "
       style={{
         left,
@@ -1223,14 +1238,12 @@ function FloatingBubble({
         absolute
         overflow-hidden
         rounded-full
-        will-change-transform
         border
         border-[#f6c5d2]/75
         bg-[#e9aebe]/[0.22]
         shadow-[0_0_22px_rgba(225,157,178,0.28)]
-        backdrop-blur-0
-        sm:backdrop-blur-[1px]
-        sm:mix-blend-screen
+        backdrop-blur-[1px]
+        mix-blend-screen
       "
       style={{
         left: startX,
