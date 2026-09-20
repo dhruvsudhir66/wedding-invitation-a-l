@@ -558,8 +558,8 @@ export default function RSVP() {
                         items-center
                         gap-3
                         border
-                        border-[#3F3935]
-                        bg-[#3F3935]
+                        border-[#691638]/70
+                        bg-[#691638]/70
                         px-6
                         py-3.5
                         text-[8px]
