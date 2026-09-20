@@ -29,7 +29,13 @@ const events = [
   Add, remove, or change colours here.
   The colour section below automatically adapts.
 */
-const bethrothalColors = ["#F8EBE6", "#C890A7"];
+const bethrothalColors = [
+  "#C88C8D",
+  "#B87880",
+  "#edd9bc",
+  "#9B6975",
+  "#53015286",
+];
 
 export default function Venue() {
   return (

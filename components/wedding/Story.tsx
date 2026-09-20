@@ -694,17 +694,24 @@ export default function Story() {
                   "
                 >
                   <p>
-                    What began with a simple hello gradually became something
-                    neither of us expected. Conversations turned into laughter,
-                    ordinary days turned into favourite memories, and somewhere
-                    along the way, being together started to feel like home.
+                    Somewhere between then and now. It all started with a glance
+                    at church — a little eye contact that neither of us knew
+                    would become the beginning of our story. Then came an
+                    Instagram follow, a few messages, and conversations that
+                    slowly turned a familiar face into someone we couldn’t
+                    imagine not knowing. Then came the miles. With him at sea,
+                    we learned to love through long calls, quiet waits, missed
+                    moments, and precious reunions.
                   </p>
 
                   <p>
-                    We have shared little adventures, quiet moments, countless
-                    conversations, and dreams for everything still ahead. Now we
-                    are ready to take the next step together, surrounded by the
-                    people who mean the most to us.
+                    The distance wasn’t always easy, but it made every moment
+                    together mean a little more. From that first glance to
+                    crossing oceans and countless little moments, we found our
+                    way to each other. And now, after all the waiting, we’re
+                    ready for the chapter where coming home means coming home to
+                    each other. A simple glance. A love across oceans. A
+                    lifetime together.
                   </p>
                 </div>
 
