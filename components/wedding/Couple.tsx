@@ -11,14 +11,14 @@ const people = [
     image: "/images/aneena.jpeg",
     family:
       "Daughter of Vincent & Lilly and sister to Alwin. A close-knit family rooted in love, faith, and togetherness.",
-    work: "Works in technology, building a career around data, creativity, and solving meaningful problems.",
+    work: "Works in technology, with a love for learning and creativity.",
   },
   {
     role: "The groom",
     name: "Loyed Varghese",
     image: "/images/loyed.jpeg",
     family:
-      "Son of Varghese & Ancy and brother to Leanda. Surrounded by a warm family and the people who have shaped his journey.",
+      "Son of Varghese & Ancy, and brother to Leanda. Rooted in the love, memories, and values of the family that shaped him.",
     work: "Works as a Merchant Navy officer, travelling the seas while building a life grounded in family and purpose.",
   },
 ];

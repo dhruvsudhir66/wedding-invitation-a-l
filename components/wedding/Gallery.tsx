@@ -6,7 +6,7 @@ import SectionHeading from "@/components/ui/SectionHeading";
 const photos = [
   {
     src: "/images/gallery/couple-gallery-1.webp",
-    alt: "The beginning",
+    alt: "Long Drives",
     number: "01",
     aspect: "aspect-[4/5]",
     imageClass: "object-[center_42%]",
@@ -24,7 +24,7 @@ const photos = [
   },
   {
     src: "/images/gallery/couple-gallery-3.webp",
-    alt: "A quiet moment",
+    alt: "Waves & Tides",
     number: "03",
     aspect: "aspect-[4/5]",
     imageClass: "object-[center_48%]",
@@ -33,7 +33,7 @@ const photos = [
   },
   {
     src: "/images/gallery/couple-gallery-4.webp",
-    alt: "Golden hour",
+    alt: "Date Nights",
     number: "04",
     aspect: "aspect-[5/6]",
     imageClass: "object-center",
@@ -51,7 +51,7 @@ const photos = [
   },
   {
     src: "/images/gallery/couple-gallery-7.webp",
-    alt: "The details",
+    alt: "Tea + Laughter",
     number: "06",
     aspect: "aspect-[5/6]",
     imageClass: "object-[center_42%]",

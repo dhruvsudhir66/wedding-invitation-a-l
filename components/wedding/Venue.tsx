@@ -11,7 +11,7 @@ const events = [
     time: "4:00 PM",
     place: "St Francis Assisi Church",
     description:
-      "We begin the celebration with our betrothal, surrounded by our families and the people we love.",
+      "We begin our betrothal surrounded by our families and loved ones, at the very place where we first met.",
     mapsUrl: "https://maps.app.goo.gl/owMGgWLTWnmmyMat9",
   },
   {
