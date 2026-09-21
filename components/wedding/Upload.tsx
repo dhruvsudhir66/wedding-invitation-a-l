@@ -7,10 +7,14 @@ import Reveal from "@/components/ui/Reveal";
 
 type PopupType = "invitation" | "greeting" | null;
 
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxJ2RQiVhs2-wJ0pjcJPRjFm-M3OmFiYUfqSptQBOC8nvH39UPRCtc4BFwAN1-kn--7/exec";
+
 type Photo = {
   id: string;
   name: string;
   url: string;
+  file: File;
 };
 
 export default function Upload() {
@@ -21,6 +25,8 @@ export default function Upload() {
 
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState("");
 
   function addPhotos(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
@@ -31,7 +37,10 @@ export default function Upload() {
       id: `${file.name}-${file.lastModified}-${Math.random()}`,
       name: file.name,
       url: URL.createObjectURL(file),
+      file,
     }));
+
+    setUploadMessage("");
 
     setPhotos((current) => [...current, ...newPhotos]);
 
@@ -48,6 +57,150 @@ export default function Upload() {
 
       return current.filter((item) => item.id !== id);
     });
+  }
+
+  function fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          resolve(reader.result);
+        } else {
+          reject(new Error("Unable to read image"));
+        }
+      };
+
+      reader.onerror = () => reject(new Error("Unable to read image"));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function prepareImage(
+    file: File,
+  ): Promise<{ dataUrl: string; fileName: string; mimeType: string }> {
+    const originalDataUrl = await fileToDataURL(file);
+
+    return new Promise((resolve) => {
+      const image = new Image();
+
+      image.onload = () => {
+        const maxSize = 1800;
+        const scale = Math.min(
+          1,
+          maxSize / Math.max(image.naturalWidth, image.naturalHeight),
+        );
+        const width = Math.max(1, Math.round(image.naturalWidth * scale));
+        const height = Math.max(1, Math.round(image.naturalHeight * scale));
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d");
+
+        if (!context) {
+          resolve({
+            dataUrl: originalDataUrl,
+            fileName: file.name,
+            mimeType: file.type || "image/jpeg",
+          });
+          return;
+        }
+
+        context.drawImage(image, 0, 0, width, height);
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        const baseName =
+          file.name.replace(/\.[^/.]+$/, "") || `wedding-photo-${Date.now()}`;
+
+        resolve({
+          dataUrl,
+          fileName: `${baseName}.jpg`,
+          mimeType: "image/jpeg",
+        });
+      };
+
+      image.onerror = () => {
+        resolve({
+          dataUrl: originalDataUrl,
+          fileName: file.name || `wedding-photo-${Date.now()}.jpg`,
+          mimeType: file.type || "image/jpeg",
+        });
+      };
+
+      image.src = originalDataUrl;
+    });
+  }
+
+  async function uploadPhoto(file: File): Promise<void> {
+    const prepared = await prepareImage(file);
+
+    const iframeName = `upload-frame-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const iframe = document.createElement("iframe");
+    iframe.name = iframeName;
+    iframe.style.display = "none";
+    iframe.setAttribute("aria-hidden", "true");
+
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = GOOGLE_SCRIPT_URL;
+    form.target = iframeName;
+    form.style.display = "none";
+
+    const fields = {
+      image: prepared.dataUrl,
+      mimeType: prepared.mimeType,
+      fileName: prepared.fileName,
+    };
+
+    Object.entries(fields).forEach(([name, value]) => {
+      const input = document.createElement("input");
+      input.type = "hidden";
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    });
+
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+
+    try {
+      form.submit();
+
+      // Apps Script redirects the request after accepting it.
+      // The iframe keeps that redirect isolated from the wedding page.
+      await new Promise<void>((resolve) => setTimeout(resolve, 4500));
+    } finally {
+      form.remove();
+      iframe.remove();
+    }
+  }
+
+  async function handlePhotoSubmit() {
+    if (!photos.length || uploading) return;
+
+    setUploading(true);
+    setUploadMessage("");
+
+    try {
+      for (const photo of photos) {
+        await uploadPhoto(photo.file);
+      }
+
+      photos.forEach((photo) => URL.revokeObjectURL(photo.url));
+      setPhotos([]);
+      setUploadMessage(
+        photos.length === 1
+          ? "Your memory has been saved."
+          : "Your memories have been saved.",
+      );
+    } catch (error) {
+      console.error("Photo upload failed:", error);
+      setUploadMessage("We couldn't save your photo. Please try again.");
+    } finally {
+      setUploading(false);
+    }
   }
 
   function handleGreetingSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -579,6 +732,67 @@ export default function Upload() {
                             </span>
                           </button>
                         </AnimatePresence>
+                      </div>
+
+                      {/* Submit photos */}
+
+                      <div className="mt-6 flex flex-col items-center border-t border-[#691638]/10 pt-6">
+                        <button
+                          type="button"
+                          onClick={handlePhotoSubmit}
+                          disabled={uploading}
+                          className="
+                            group
+                            inline-flex
+                            items-center
+                            gap-3
+                            border
+                            border-[#691638]/15
+                            bg-[#691638]
+                            px-6
+                            py-3.5
+                            text-[8px]
+                            uppercase
+                            tracking-[0.22em]
+                            text-[#F8EBE6]
+                            shadow-[0_8px_20px_rgba(105,22,56,0.10)]
+                            transition-all
+                            duration-300
+                            hover:bg-[#7B244A]
+                            disabled:cursor-not-allowed
+                            disabled:opacity-50
+                          "
+                        >
+                          {uploading ? "Uploading..." : "Share these memories"}
+
+                          {!uploading && (
+                            <ArrowUpRight
+                              size={12}
+                              strokeWidth={1.3}
+                              className="
+                                transition-transform
+                                duration-300
+                                group-hover:-translate-y-0.5
+                                group-hover:translate-x-0.5
+                              "
+                            />
+                          )}
+                        </button>
+
+                        {uploadMessage && (
+                          <p
+                            className="
+                            mt-4
+                            text-center
+                            text-[8px]
+                            uppercase
+                            tracking-[0.16em]
+                            text-[#691638]/55
+                          "
+                          >
+                            {uploadMessage}
+                          </p>
+                        )}
                       </div>
 
                       {/* Selected status */}
