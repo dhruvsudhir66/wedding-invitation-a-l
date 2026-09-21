@@ -66,78 +66,71 @@ export default function Upload() {
   }
 
   async function prepareImage(file: File): Promise<File> {
-    // Keep JPEGs as JPEGs, but still resize very large images below.
-    const dataUrl = await fileToDataURL(file);
+    const MAX_SIZE = 1400;
+    const QUALITY = 0.78;
 
-    return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+
+    try {
       const image = new Image();
 
-      image.onload = () => {
-        const MAX_SIZE = 1800;
-        let width = image.naturalWidth;
-        let height = image.naturalHeight;
+      image.decoding = "async";
+      image.src = objectUrl;
 
-        if (!width || !height) {
-          reject(new Error("Invalid image dimensions."));
-          return;
+      await image.decode();
+
+      let width = image.naturalWidth;
+      let height = image.naturalHeight;
+
+      if (!width || !height) {
+        throw new Error("Invalid image dimensions.");
+      }
+
+      // Resize only when necessary.
+      if (width > MAX_SIZE || height > MAX_SIZE) {
+        if (width >= height) {
+          height = Math.round((height / width) * MAX_SIZE);
+          width = MAX_SIZE;
+        } else {
+          width = Math.round((width / height) * MAX_SIZE);
+          height = MAX_SIZE;
         }
+      }
 
-        if (width > MAX_SIZE || height > MAX_SIZE) {
-          if (width >= height) {
-            height = Math.round((height / width) * MAX_SIZE);
-            width = MAX_SIZE;
-          } else {
-            width = Math.round((width / height) * MAX_SIZE);
-            height = MAX_SIZE;
-          }
-        }
+      const canvas = document.createElement("canvas");
 
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
+      canvas.width = width;
+      canvas.height = height;
 
-        const context = canvas.getContext("2d", { alpha: false });
+      const context = canvas.getContext("2d");
 
-        if (!context) {
-          reject(new Error("Could not prepare the image."));
-          return;
-        }
+      if (!context) {
+        throw new Error("Could not prepare the image.");
+      }
 
-        context.drawImage(image, 0, 0, width, height);
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = "medium";
 
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error("Could not convert the image to JPEG."));
-              return;
-            }
+      context.drawImage(image, 0, 0, width, height);
 
-            const baseName = file.name
-              .replace(/\.[^/.]+$/, "")
-              .replace(/\s+/g, "-");
+      const blob = await new Promise<Blob | null>((resolve) => {
+        canvas.toBlob(resolve, "image/jpeg", QUALITY);
+      });
 
-            resolve(
-              new File([blob], `${baseName || "wedding-photo"}.jpg`, {
-                type: "image/jpeg",
-                lastModified: Date.now(),
-              }),
-            );
-          },
-          "image/jpeg",
-          0.84,
-        );
-      };
+      if (!blob) {
+        throw new Error("Could not convert the image.");
+      }
 
-      image.onerror = () => {
-        reject(
-          new Error(
-            "This photo format could not be read by this browser. Please choose the photo again or use a JPEG image.",
-          ),
-        );
-      };
+      const baseName = file.name.replace(/\.[^/.]+$/, "").replace(/\s+/g, "-");
 
-      image.src = dataUrl;
-    });
+      return new File([blob], `${baseName || "wedding-photo"}.jpg`, {
+        type: "image/jpeg",
+        lastModified: Date.now(),
+      });
+    } finally {
+      // Very important on low-memory Android devices.
+      URL.revokeObjectURL(objectUrl);
+    }
   }
 
   function submitToGoogleDrive(file: File): Promise<void> {
@@ -890,7 +883,6 @@ export default function Upload() {
                 type="file"
                 accept="image/*"
                 capture="environment"
-                multiple
                 className="hidden"
                 onChange={addPhotos}
               />
