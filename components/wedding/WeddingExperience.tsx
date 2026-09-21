@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import SaveTheDate from "@/components/wedding/SaveTheDate";
 import Nav from "@/components/wedding/Nav";
@@ -23,44 +23,73 @@ export default function WeddingExperience() {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const onOpen = async () => {
-    try {
-      if (audioRef.current) {
-        audioRef.current.currentTime = 0;
-        audioRef.current.muted = false;
-        audioRef.current.volume = 0.65;
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
 
-        await audioRef.current.play();
+      if (document.hidden) {
+        audio.pause();
+      } else {
+        if (!muted) {
+          audio.play().catch(() => {
+            // Browser may require user interaction again
+          });
+        }
       }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [muted]);
+
+  const handleOpenWedding = async () => {
+    setOpened(true);
+
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    try {
+      audio.currentTime = 0;
+      audio.volume = 0.65;
+      audio.muted = false;
+
+      await audio.play();
+      setMuted(false);
     } catch (error) {
       console.error("Unable to start wedding music:", error);
     }
   };
 
   const toggleMute = () => {
-    if (!audioRef.current) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
     const nextMuted = !muted;
 
-    audioRef.current.muted = nextMuted;
+    audio.muted = nextMuted;
     setMuted(nextMuted);
+
+    if (!nextMuted && audio.paused && !document.hidden) {
+      audio.play().catch(() => {});
+    }
   };
 
   return (
     <main className="wedding-noise overflow-x-clip">
-      {/* Wedding music */}
-      <audio ref={audioRef} src="/music/red-velvet.mpeg" preload="auto" loop />
+      <audio
+        ref={audioRef}
+        src="/music/red-velvet.mpeg"
+        preload="auto"
+        loop
+        playsInline
+      />
 
       <AnimatePresence mode="wait">
-        {!opened && (
-          <SaveTheDate
-            key="save-date"
-            onOpen={() => {
-              setOpened(true);
-              onOpen();
-            }}
-          />
-        )}
+        {!opened && <SaveTheDate key="save-date" onOpen={handleOpenWedding} />}
       </AnimatePresence>
 
       {opened && (
@@ -74,7 +103,6 @@ export default function WeddingExperience() {
           }}
         >
           <Nav />
-
           <Hero />
           <Countdown />
           {/* <Marquee /> */}
@@ -86,7 +114,6 @@ export default function WeddingExperience() {
           <Upload />
           <Footer />
 
-          {/* Music control */}
           <motion.button
             type="button"
             onClick={toggleMute}
@@ -102,48 +129,36 @@ export default function WeddingExperience() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.94 }}
             className="
-    group
-    fixed
-    bottom-[calc(16px+env(safe-area-inset-bottom))]
-    right-[calc(16px+env(safe-area-inset-right))]
-    z-50
-    flex
-    h-11
-    w-11
-    shrink-0
-    items-center
-    justify-center
-    overflow-hidden
-    rounded-full
-    border
-    border-white/30
-    bg-[#691638]/80
-    text-[#FFF8F5]
-    shadow-[0_8px_30px_rgba(69,25,42,0.18)]
-    backdrop-blur-md
-    transition-all
-    duration-500
-    hover:border-white/45
-    hover:bg-[#691638]/90
-    sm:bottom-[calc(24px+env(safe-area-inset-bottom))]
-    sm:right-[calc(24px+env(safe-area-inset-right))]
-    sm:h-12
-    sm:w-12
-  "
+                  fixed
+                  bottom-6
+                  right-6
+                  z-50
+                  flex
+                  h-12
+                  w-12
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-white/20
+                  bg-[#691638]/80
+                  text-white
+                  shadow-[0_8px_30px_rgba(0,0,0,0.18)]
+                  backdrop-blur-md
+                  transition-all
+                  duration-300
+                  hover:bg-white/15
+                "
           >
-            {/* Soft ambient ring */}
+            {/* Ambient ring */}
             <span
               className="
-      pointer-events-none
       absolute
       inset-0
       rounded-full
       border
-      border-[#F8EBE6]/10
-      opacity-0
-      transition-opacity
-      duration-500
-      group-hover:opacity-100
+      border-white/10
+      opacity-70
     "
             />
 
@@ -152,48 +167,35 @@ export default function WeddingExperience() {
               {muted ? (
                 <motion.span
                   key="muted"
-                  initial={{ opacity: 0, scale: 0.7, rotate: -12 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.7, rotate: 12 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative z-10"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <VolumeX size={16} strokeWidth={1.35} />
+                  <VolumeX size={18} />
                 </motion.span>
               ) : (
                 <motion.span
                   key="playing"
-                  initial={{ opacity: 0, scale: 0.7, rotate: 12 }}
-                  animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0.7, rotate: -12 }}
-                  transition={{ duration: 0.2 }}
-                  className="relative z-10"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
                 >
-                  <Volume2 size={16} strokeWidth={1.35} />
+                  <Volume2 size={18} />
                 </motion.span>
               )}
             </AnimatePresence>
 
-            {/* Tiny status dot */}
+            {/* Status dot */}
             <motion.span
-              animate={{
-                scale: muted ? 0.7 : [0.8, 1, 0.8],
-                opacity: muted ? 0.35 : [0.45, 0.9, 0.45],
-              }}
-              transition={{
-                duration: 2,
-                repeat: muted ? 0 : Infinity,
-                ease: "easeInOut",
-              }}
               className="
-      pointer-events-none
       absolute
-      right-[7px]
-      top-[7px]
+      right-2
+      top-1
       h-1
       w-1
       rounded-full
-      bg-[#F8EBE6]
+      bg-[#C890A7]
+      shadow-[0_0_5px_rgba(200,144,167,0.7)]
     "
             />
           </motion.button>

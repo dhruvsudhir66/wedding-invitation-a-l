@@ -18,9 +18,9 @@ const sans = DM_Sans({
 export const metadata: Metadata = {
   title: "Aneena & Loyed | Wedding",
   description: "Our Wedding.",
-  // icons: {
-  //   icon: "/favicon.svg",
-  // },
+  icons: {
+    icon: "/images/logo.png",
+  },
 };
 
 export default function RootLayout({
