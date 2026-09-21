@@ -49,7 +49,7 @@ export default function WeddingExperience() {
   return (
     <main className="wedding-noise overflow-x-clip">
       {/* Wedding music */}
-      <audio ref={audioRef} src="/music/kasoor.mpeg" preload="auto" loop />
+      <audio ref={audioRef} src="/music/red-velvet.mpeg" preload="auto" loop />
 
       <AnimatePresence mode="wait">
         {!opened && (
