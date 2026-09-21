@@ -304,76 +304,73 @@ export default function Upload() {
         ======================================================= */}
 
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          {/* Main glow */}
+          {/* Main atmosphere */}
           <div
             className="
-              absolute
-              left-1/2
-              top-[25%]
-              h-[400px]
-              w-[90vw]
-              -translate-x-1/2
-              rounded-full
-              bg-[#C890A7]/[0.08]
-              blur-[120px]
-              sm:h-[500px]
-              sm:w-[65vw]
-            "
+      absolute
+      left-1/2
+      top-[25%]
+      h-[400px]
+      w-[90vw]
+      -translate-x-1/2
+      rounded-full
+      bg-[#C890A7]/[0.055]
+      sm:h-[500px]
+      sm:w-[65vw]
+    "
           />
 
           {/* Left blush */}
           <div
             className="
-              absolute
-              -left-[180px]
-              top-[30%]
-              h-[340px]
-              w-[340px]
-              rounded-full
-              bg-[#D9AFC0]/[0.10]
-              blur-[110px]
-            "
+      absolute
+      -left-[180px]
+      top-[30%]
+      h-[340px]
+      w-[340px]
+      rounded-full
+      bg-[#D9AFC0]/[0.07]
+    "
           />
 
           {/* Right blush */}
           <div
             className="
-              absolute
-              -right-[180px]
-              bottom-[5%]
-              h-[360px]
-              w-[360px]
-              rounded-full
-              bg-[#C890A7]/[0.07]
-              blur-[110px]
-            "
+      absolute
+      -right-[180px]
+      bottom-[5%]
+      h-[360px]
+      w-[360px]
+      rounded-full
+      bg-[#C890A7]/[0.05]
+    "
           />
 
           {/* Soft top fade */}
           <div
             className="
-              absolute
-              inset-x-0
-              top-0
-              h-40
-              bg-gradient-to-b
-              from-white/[0.18]
-              to-transparent
-            "
+      absolute
+      inset-x-0
+      top-0
+      h-40
+      bg-gradient-to-b
+      from-white/[0.18]
+      to-transparent
+    "
           />
 
           {/* Paper grain */}
           <div
             className="
-              absolute
-              inset-0
-              opacity-[0.022]
-              [background-image:radial-gradient(
-                rgba(105,22,56,0.65)_0.5px,
-                transparent_0.5px
-              )]
-              [background-size:5px_5px]
-            "
+      absolute
+      inset-0
+      opacity-[0.022]
+      [background-image:radial-gradient(
+        rgba(105,22,56,0.65)_0.5px,
+        transparent_0.5px
+      )]
+      [background-size:5px_5px]
+    "
           />
         </div>
 
@@ -951,7 +948,6 @@ export default function Upload() {
               justify-center
               bg-[#691638]/20
               p-4
-              backdrop-blur-md
               sm:p-8
             "
             onClick={() => setPopup(null)}
@@ -1027,7 +1023,6 @@ export default function Upload() {
                     border-[#691638]/10
                     bg-[#F8EBE6]/90
                     text-[#691638]/65
-                    backdrop-blur-md
                     transition-all
                     duration-300
                     hover:bg-white
