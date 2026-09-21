@@ -6,12 +6,81 @@ import { motion } from "framer-motion";
 import Reveal from "@/components/ui/Reveal";
 import AddToCalendar from "@/components/wedding/AddToCalendar";
 
+// =========================================================
+// GOOGLE APPS SCRIPT — RSVP ONLY
+// Replace this with your NEW RSVP Apps Script Web App URL.
+// Do NOT use your photo-upload Apps Script URL here.
+// =========================================================
+
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbwGpBrAqEfd8dBBaGE0k5faISrP9sv-ASgrM9jHLUSuVhBwiGiMF5QO-HsvgeHSTdFWbg/exec";
+
 export default function RSVP() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [attendance, setAttendance] = useState("");
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+
+    if (submitting) return;
+
+    setSubmitting(true);
+    setError("");
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const name = String(formData.get("name") || "").trim();
+    const note = String(formData.get("note") || "").trim();
+
+    if (!name) {
+      setError("Please enter your name.");
+      setSubmitting(false);
+      return;
+    }
+
+    if (!attendance) {
+      setError("Please let us know whether you'll be joining us.");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const body = new URLSearchParams();
+
+      body.append("type", "rsvp");
+      body.append("name", name);
+      body.append("attendance", attendance);
+      body.append("note", note);
+
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: "POST",
+        body,
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(
+          result.error || "Unable to send RSVP. Please try again.",
+        );
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error("RSVP submission failed:", err);
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -219,7 +288,6 @@ export default function RSVP() {
               ================================================= */}
 
               <div className="mt-9">
-                {/* Calendar action */}
                 <div className="mt-5 flex justify-start">
                   <AddToCalendar
                     event={{
@@ -472,6 +540,7 @@ export default function RSVP() {
                       name="name"
                       autoComplete="name"
                       placeholder="Your name"
+                      disabled={submitting}
                       className="
                         mt-3
                         w-full
@@ -489,9 +558,93 @@ export default function RSVP() {
                         transition-colors
                         duration-300
                         focus:border-[#8F596C]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                       "
                     />
                   </label>
+
+                  {/* ATTENDANCE */}
+
+                  <fieldset
+                    className="
+                      mt-8
+                      border-0
+                      p-0
+                    "
+                  >
+                    <legend
+                      className="
+                        text-[9px]
+                        uppercase
+                        tracking-[0.18em]
+                        text-[#514943]/75
+                      "
+                    >
+                      Will you be joining us?
+                      <span className="ml-2 text-[#8F596C]">*</span>
+                    </legend>
+
+                    <div className="mt-4 space-y-3">
+                      <label
+                        className="
+                          flex
+                          cursor-pointer
+                          items-center
+                          gap-3
+                          text-[12px]
+                          text-[#3F3935]
+                        "
+                      >
+                        <input
+                          type="radio"
+                          name="attendance"
+                          value="Yes, I'll be there"
+                          checked={attendance === "Yes, I'll be there"}
+                          onChange={(event) =>
+                            setAttendance(event.target.value)
+                          }
+                          disabled={submitting}
+                          className="
+                            h-4
+                            w-4
+                            accent-[#691638]
+                          "
+                        />
+
+                        <span>Yes, I'll be there</span>
+                      </label>
+
+                      <label
+                        className="
+                          flex
+                          cursor-pointer
+                          items-center
+                          gap-3
+                          text-[12px]
+                          text-[#3F3935]
+                        "
+                      >
+                        <input
+                          type="radio"
+                          name="attendance"
+                          value="Sorry, I can't make it"
+                          checked={attendance === "Sorry, I can't make it"}
+                          onChange={(event) =>
+                            setAttendance(event.target.value)
+                          }
+                          disabled={submitting}
+                          className="
+                            h-4
+                            w-4
+                            accent-[#691638]
+                          "
+                        />
+
+                        <span>Sorry, I can't make it</span>
+                      </label>
+                    </div>
+                  </fieldset>
 
                   {/* NOTE */}
 
@@ -513,6 +666,7 @@ export default function RSVP() {
                       name="note"
                       rows={4}
                       placeholder="A note for the couple..."
+                      disabled={submitting}
                       className="
                         mt-3
                         w-full
@@ -532,9 +686,32 @@ export default function RSVP() {
                         transition-colors
                         duration-300
                         focus:border-[#8F596C]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-50
                       "
                     />
                   </label>
+
+                  {/* ERROR */}
+
+                  {error && (
+                    <div
+                      role="alert"
+                      className="
+                        mt-5
+                        border
+                        border-[#8F596C]/20
+                        bg-[#E8D6D8]/40
+                        px-4
+                        py-3
+                        text-[10px]
+                        leading-5
+                        text-[#691638]
+                      "
+                    >
+                      {error}
+                    </div>
+                  )}
 
                   {/* SUBMIT */}
 
@@ -551,6 +728,7 @@ export default function RSVP() {
                   >
                     <button
                       type="submit"
+                      disabled={submitting}
                       className="
                         group
                         inline-flex
@@ -569,9 +747,12 @@ export default function RSVP() {
                         transition-all
                         duration-300
                         hover:bg-[#514943]
+                        disabled:cursor-not-allowed
+                        disabled:opacity-60
                       "
                     >
-                      Send RSVP
+                      {submitting ? "Sending..." : "Send RSVP"}
+
                       <Send
                         size={13}
                         strokeWidth={1.4}
