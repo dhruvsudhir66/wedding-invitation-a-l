@@ -7,15 +7,15 @@ import Reveal from "@/components/ui/Reveal";
 
 type PopupType = "invitation" | "greeting" | null;
 
-const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxJ2RQiVhs2-wJ0pjcJPRjFm-M3OmFiYUfqSptQBOC8nvH39UPRCtc4BFwAN1-kn--7/exec";
-
 type Photo = {
   id: string;
   name: string;
   url: string;
   file: File;
 };
+
+const GOOGLE_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxJ2RQiVhs2-wJ0pjcJPRjFm-M3OmFiYUfqSptQBOC8nvH39UPRCtc4BFwAN1-kn--7/exec";
 
 export default function Upload() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -25,8 +25,9 @@ export default function Upload() {
 
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadMessage, setUploadMessage] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadComplete, setUploadComplete] = useState(false);
+  const [uploadError, setUploadError] = useState("");
 
   function addPhotos(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
@@ -40,11 +41,176 @@ export default function Upload() {
       file,
     }));
 
-    setUploadMessage("");
-
     setPhotos((current) => [...current, ...newPhotos]);
 
     event.target.value = "";
+  }
+
+  function fileToDataURL(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error("Could not read the image."));
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function prepareImage(file: File): Promise<File> {
+    // Keep JPEGs as JPEGs, but still resize very large images below.
+    const dataUrl = await fileToDataURL(file);
+
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+
+      image.onload = () => {
+        const MAX_SIZE = 1800;
+        let width = image.naturalWidth;
+        let height = image.naturalHeight;
+
+        if (!width || !height) {
+          reject(new Error("Invalid image dimensions."));
+          return;
+        }
+
+        if (width > MAX_SIZE || height > MAX_SIZE) {
+          if (width >= height) {
+            height = Math.round((height / width) * MAX_SIZE);
+            width = MAX_SIZE;
+          } else {
+            width = Math.round((width / height) * MAX_SIZE);
+            height = MAX_SIZE;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const context = canvas.getContext("2d", { alpha: false });
+
+        if (!context) {
+          reject(new Error("Could not prepare the image."));
+          return;
+        }
+
+        context.drawImage(image, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error("Could not convert the image to JPEG."));
+              return;
+            }
+
+            const baseName = file.name
+              .replace(/\.[^/.]+$/, "")
+              .replace(/\s+/g, "-");
+
+            resolve(
+              new File([blob], `${baseName || "wedding-photo"}.jpg`, {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              }),
+            );
+          },
+          "image/jpeg",
+          0.84,
+        );
+      };
+
+      image.onerror = () => {
+        reject(
+          new Error(
+            "This photo format could not be read by this browser. Please choose the photo again or use a JPEG image.",
+          ),
+        );
+      };
+
+      image.src = dataUrl;
+    });
+  }
+
+  function submitToGoogleDrive(file: File): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const image = await fileToDataURL(file);
+        const frameName = `wedding-upload-frame-${Date.now()}-${Math.random()}`;
+
+        const iframe = document.createElement("iframe");
+        iframe.name = frameName;
+        iframe.style.display = "none";
+        iframe.setAttribute("aria-hidden", "true");
+        document.body.appendChild(iframe);
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = GOOGLE_SCRIPT_URL;
+        form.target = frameName;
+        form.style.display = "none";
+
+        const imageInput = document.createElement("input");
+        imageInput.type = "hidden";
+        imageInput.name = "image";
+        imageInput.value = image;
+
+        const mimeInput = document.createElement("input");
+        mimeInput.type = "hidden";
+        mimeInput.name = "mimeType";
+        mimeInput.value = "image/jpeg";
+
+        const fileNameInput = document.createElement("input");
+        fileNameInput.type = "hidden";
+        fileNameInput.name = "fileName";
+        fileNameInput.value = file.name;
+
+        form.appendChild(imageInput);
+        form.appendChild(mimeInput);
+        form.appendChild(fileNameInput);
+        document.body.appendChild(form);
+
+        form.submit();
+
+        // Apps Script redirects the POST through Google's web-app endpoint.
+        // The hidden iframe avoids browser CORS restrictions.
+        window.setTimeout(() => {
+          form.remove();
+          iframe.remove();
+          resolve();
+        }, 2200);
+      } catch (error) {
+        reject(error);
+      }
+    });
+  }
+
+  async function uploadPhotos() {
+    if (!photos.length || isUploading) return;
+
+    setIsUploading(true);
+    setUploadComplete(false);
+    setUploadError("");
+
+    try {
+      for (const photo of photos) {
+        const preparedFile = await prepareImage(photo.file);
+        await submitToGoogleDrive(preparedFile);
+      }
+
+      photos.forEach((photo) => URL.revokeObjectURL(photo.url));
+      setPhotos([]);
+      setUploadComplete(true);
+    } catch (error) {
+      console.error("Wedding photo upload failed:", error);
+      setUploadError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while uploading your photos.",
+      );
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   function removePhoto(id: string) {
@@ -57,150 +223,6 @@ export default function Upload() {
 
       return current.filter((item) => item.id !== id);
     });
-  }
-
-  function fileToDataURL(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Unable to read image"));
-        }
-      };
-
-      reader.onerror = () => reject(new Error("Unable to read image"));
-      reader.readAsDataURL(file);
-    });
-  }
-
-  async function prepareImage(
-    file: File,
-  ): Promise<{ dataUrl: string; fileName: string; mimeType: string }> {
-    const originalDataUrl = await fileToDataURL(file);
-
-    return new Promise((resolve) => {
-      const image = new Image();
-
-      image.onload = () => {
-        const maxSize = 1800;
-        const scale = Math.min(
-          1,
-          maxSize / Math.max(image.naturalWidth, image.naturalHeight),
-        );
-        const width = Math.max(1, Math.round(image.naturalWidth * scale));
-        const height = Math.max(1, Math.round(image.naturalHeight * scale));
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-
-        const context = canvas.getContext("2d");
-
-        if (!context) {
-          resolve({
-            dataUrl: originalDataUrl,
-            fileName: file.name,
-            mimeType: file.type || "image/jpeg",
-          });
-          return;
-        }
-
-        context.drawImage(image, 0, 0, width, height);
-
-        const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
-        const baseName =
-          file.name.replace(/\.[^/.]+$/, "") || `wedding-photo-${Date.now()}`;
-
-        resolve({
-          dataUrl,
-          fileName: `${baseName}.jpg`,
-          mimeType: "image/jpeg",
-        });
-      };
-
-      image.onerror = () => {
-        resolve({
-          dataUrl: originalDataUrl,
-          fileName: file.name || `wedding-photo-${Date.now()}.jpg`,
-          mimeType: file.type || "image/jpeg",
-        });
-      };
-
-      image.src = originalDataUrl;
-    });
-  }
-
-  async function uploadPhoto(file: File): Promise<void> {
-    const prepared = await prepareImage(file);
-
-    const iframeName = `upload-frame-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    const iframe = document.createElement("iframe");
-    iframe.name = iframeName;
-    iframe.style.display = "none";
-    iframe.setAttribute("aria-hidden", "true");
-
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = GOOGLE_SCRIPT_URL;
-    form.target = iframeName;
-    form.style.display = "none";
-
-    const fields = {
-      image: prepared.dataUrl,
-      mimeType: prepared.mimeType,
-      fileName: prepared.fileName,
-    };
-
-    Object.entries(fields).forEach(([name, value]) => {
-      const input = document.createElement("input");
-      input.type = "hidden";
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    });
-
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-
-    try {
-      form.submit();
-
-      // Apps Script redirects the request after accepting it.
-      // The iframe keeps that redirect isolated from the wedding page.
-      await new Promise<void>((resolve) => setTimeout(resolve, 4500));
-    } finally {
-      form.remove();
-      iframe.remove();
-    }
-  }
-
-  async function handlePhotoSubmit() {
-    if (!photos.length || uploading) return;
-
-    setUploading(true);
-    setUploadMessage("");
-
-    try {
-      for (const photo of photos) {
-        await uploadPhoto(photo.file);
-      }
-
-      photos.forEach((photo) => URL.revokeObjectURL(photo.url));
-      setPhotos([]);
-      setUploadMessage(
-        photos.length === 1
-          ? "Your memory has been saved."
-          : "Your memories have been saved.",
-      );
-    } catch (error) {
-      console.error("Photo upload failed:", error);
-      setUploadMessage("We couldn't save your photo. Please try again.");
-    } finally {
-      setUploading(false);
-    }
   }
 
   function handleGreetingSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -734,67 +756,6 @@ export default function Upload() {
                         </AnimatePresence>
                       </div>
 
-                      {/* Submit photos */}
-
-                      <div className="mt-6 flex flex-col items-center border-t border-[#691638]/10 pt-6">
-                        <button
-                          type="button"
-                          onClick={handlePhotoSubmit}
-                          disabled={uploading}
-                          className="
-                            group
-                            inline-flex
-                            items-center
-                            gap-3
-                            border
-                            border-[#691638]/15
-                            bg-[#691638]
-                            px-6
-                            py-3.5
-                            text-[8px]
-                            uppercase
-                            tracking-[0.22em]
-                            text-[#F8EBE6]
-                            shadow-[0_8px_20px_rgba(105,22,56,0.10)]
-                            transition-all
-                            duration-300
-                            hover:bg-[#7B244A]
-                            disabled:cursor-not-allowed
-                            disabled:opacity-50
-                          "
-                        >
-                          {uploading ? "Uploading..." : "Share these memories"}
-
-                          {!uploading && (
-                            <ArrowUpRight
-                              size={12}
-                              strokeWidth={1.3}
-                              className="
-                                transition-transform
-                                duration-300
-                                group-hover:-translate-y-0.5
-                                group-hover:translate-x-0.5
-                              "
-                            />
-                          )}
-                        </button>
-
-                        {uploadMessage && (
-                          <p
-                            className="
-                            mt-4
-                            text-center
-                            text-[8px]
-                            uppercase
-                            tracking-[0.16em]
-                            text-[#691638]/55
-                          "
-                          >
-                            {uploadMessage}
-                          </p>
-                        )}
-                      </div>
-
                       {/* Selected status */}
 
                       <div
@@ -824,6 +785,60 @@ export default function Upload() {
                         >
                           Photos selected on this device
                         </span>
+                      </div>
+
+                      {/* Upload */}
+
+                      <div className="mt-6 border-t border-[#691638]/10 pt-5">
+                        <button
+                          type="button"
+                          onClick={uploadPhotos}
+                          disabled={isUploading || photos.length === 0}
+                          className="
+                            inline-flex
+                            items-center
+                            gap-3
+                            border
+                            border-[#691638]
+                            bg-[#691638]
+                            px-6
+                            py-3.5
+                            text-[8px]
+                            uppercase
+                            tracking-[0.22em]
+                            text-[#F8EBE6]
+                            shadow-[0_8px_20px_rgba(105,22,56,0.10)]
+                            transition-all
+                            duration-300
+                            hover:bg-[#7B244A]
+                            disabled:cursor-not-allowed
+                            disabled:opacity-50
+                          "
+                        >
+                          {isUploading
+                            ? "Uploading memories..."
+                            : "Submit photos"}
+                          {!isUploading && (
+                            <ArrowUpRight size={12} strokeWidth={1.3} />
+                          )}
+                        </button>
+
+                        {uploadComplete && (
+                          <div className="mt-4 flex items-center gap-2 text-[8px] uppercase tracking-[0.15em] text-[#691638]/55">
+                            <Check
+                              size={13}
+                              strokeWidth={1.5}
+                              className="text-[#691638]"
+                            />
+                            <span>Your memories have been shared.</span>
+                          </div>
+                        )}
+
+                        {uploadError && (
+                          <p className="mt-4 max-w-xl text-[9px] leading-5 text-[#691638]/60">
+                            {uploadError}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </motion.div>
