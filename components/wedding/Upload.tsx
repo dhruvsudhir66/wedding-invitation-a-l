@@ -17,6 +17,10 @@ type Photo = {
 const GOOGLE_SCRIPT_URL =
   "https://script.google.com/macros/s/AKfycbxJ2RQiVhs2-wJ0pjcJPRjFm-M3OmFiYUfqSptQBOC8nvH39UPRCtc4BFwAN1-kn--7/exec";
 
+// Replace this with your NEW Send Wishes Apps Script Web App URL.
+const WISHES_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbx9DmkJuMlGaY0CR_ccaa3L2pLELRx24a-3TPN39GqTq1XYiKAlZVoESqVuk30VBvmG4A/exec";
+
 export default function Upload() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -28,6 +32,10 @@ export default function Upload() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadComplete, setUploadComplete] = useState(false);
   const [uploadError, setUploadError] = useState("");
+
+  const [isSendingWish, setIsSendingWish] = useState(false);
+  const [wishSent, setWishSent] = useState(false);
+  const [wishError, setWishError] = useState("");
 
   function addPhotos(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files ?? []);
@@ -225,23 +233,52 @@ export default function Upload() {
     });
   }
 
-  function handleGreetingSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleGreetingSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!name.trim() || !message.trim()) return;
+    if (isSendingWish) return;
 
-    /*
-      Connect this to Supabase / your backend later.
-    */
+    const trimmedName = name.trim();
+    const trimmedMessage = message.trim();
 
-    console.log({
-      name: name.trim(),
-      message: message.trim(),
-    });
+    if (!trimmedName || !trimmedMessage) return;
 
-    setName("");
-    setMessage("");
-    setPopup(null);
+    setIsSendingWish(true);
+    setWishError("");
+
+    try {
+      const body = new URLSearchParams();
+      body.append("type", "wish");
+      body.append("name", trimmedName);
+      body.append("message", trimmedMessage);
+
+      const response = await fetch(WISHES_SCRIPT_URL, {
+        method: "POST",
+        body,
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(
+          result.error || "Unable to send your wishes. Please try again.",
+        );
+      }
+
+      setWishSent(true);
+      setName("");
+      setMessage("");
+    } catch (error) {
+      console.error("Wedding wish submission failed:", error);
+
+      setWishError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong while sending your wishes.",
+      );
+    } finally {
+      setIsSendingWish(false);
+    }
   }
 
   return (
@@ -509,7 +546,11 @@ export default function Upload() {
                       />
                     </div>
                   }
-                  onClick={() => setPopup("greeting")}
+                  onClick={() => {
+                    setWishSent(false);
+                    setWishError("");
+                    setPopup("greeting");
+                  }}
                   delay={0.1}
                 />
 
@@ -1215,6 +1256,7 @@ export default function Upload() {
                         value={name}
                         onChange={(event) => setName(event.target.value)}
                         required
+                        disabled={isSendingWish}
                         type="text"
                         placeholder="Enter your name"
                         className="
@@ -1255,6 +1297,7 @@ export default function Upload() {
                         value={message}
                         onChange={(event) => setMessage(event.target.value)}
                         required
+                        disabled={isSendingWish}
                         rows={4}
                         placeholder="Write something lovely..."
                         className="
@@ -1278,8 +1321,51 @@ export default function Upload() {
 
                     {/* Submit */}
 
+                    {wishError && (
+                      <div
+                        role="alert"
+                        className="
+                          mt-5
+                          border
+                          border-[#691638]/10
+                          bg-[#E8D6D8]/45
+                          px-4
+                          py-3
+                          text-[9px]
+                          leading-5
+                          text-[#691638]/70
+                        "
+                      >
+                        {wishError}
+                      </div>
+                    )}
+
+                    {wishSent && (
+                      <div
+                        role="status"
+                        className="
+                          mt-5
+                          flex
+                          items-center
+                          gap-2
+                          border
+                          border-[#691638]/10
+                          bg-[#F8EBE6]/70
+                          px-4
+                          py-3
+                          text-[9px]
+                          leading-5
+                          text-[#691638]/70
+                        "
+                      >
+                        <Check size={13} strokeWidth={1.5} />
+                        Your wishes have been sent. Thank you.
+                      </div>
+                    )}
+
                     <button
                       type="submit"
+                      disabled={isSendingWish}
                       className="
                         group
                         mt-7
@@ -1301,17 +1387,19 @@ export default function Upload() {
                         hover:bg-[#7B244A]
                       "
                     >
-                      Send wishes
-                      <ArrowUpRight
-                        size={12}
-                        strokeWidth={1.3}
-                        className="
+                      {isSendingWish ? "Sending..." : "Send wishes"}
+                      {!isSendingWish && (
+                        <ArrowUpRight
+                          size={12}
+                          strokeWidth={1.3}
+                          className="
                           transition-transform
                           duration-300
                           group-hover:-translate-y-0.5
                           group-hover:translate-x-0.5
                         "
-                      />
+                        />
+                      )}
                     </button>
                   </form>
                 </div>

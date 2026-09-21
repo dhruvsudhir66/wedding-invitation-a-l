@@ -13,7 +13,7 @@ import AddToCalendar from "@/components/wedding/AddToCalendar";
 // =========================================================
 
 const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbwGpBrAqEfd8dBBaGE0k5faISrP9sv-ASgrM9jHLUSuVhBwiGiMF5QO-HsvgeHSTdFWbg/exec";
+  "https://script.google.com/macros/s/AKfycbxRiGkA8_39HVV6Irzm59olEsI9YJbHq-ExFd9cCBKbA9aYF0dnr8jtl8UYAyX6Aiv3wQ/exec";
 
 export default function RSVP() {
   const [submitted, setSubmitted] = useState(false);
