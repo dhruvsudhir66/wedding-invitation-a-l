@@ -895,6 +895,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             hover:bg-[#bd8d85]
             hover:border-[#aa7d75]/65
             touch-manipulation
+            cursor-pointer
           "
         >
           <span className="relative z-10">Open invitation</span>

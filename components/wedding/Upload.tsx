@@ -133,6 +133,24 @@ export default function Upload() {
     }
   }
 
+  function savePhotoToDevice(file: File) {
+    const url = URL.createObjectURL(file);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = file.name;
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    // Give the browser time to start the download
+    window.setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 1000);
+  }
+
   function submitToGoogleDrive(file: File): Promise<void> {
     return new Promise(async (resolve, reject) => {
       try {
@@ -197,6 +215,8 @@ export default function Upload() {
       for (const photo of photos) {
         const preparedFile = await prepareImage(photo.file);
         await submitToGoogleDrive(preparedFile);
+
+        savePhotoToDevice(preparedFile);
       }
 
       photos.forEach((photo) => URL.revokeObjectURL(photo.url));
