@@ -17,6 +17,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import { useMemo, type CSSProperties } from "react";
+import { weddingConfig } from "@/config/wedding";
 
 type Bubble = {
   left: string;
@@ -240,6 +241,8 @@ const fallingElements: FallingElement[] = [
 
 export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
   const reduceMotion = useReducedMotion();
+  const { couple, date, assets, copy } = weddingConfig;
+  const saveTheDate = copy.saveTheDate;
 
   /*
    * Stable arrays. Nothing is created/removed when the Samsung
@@ -636,7 +639,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               mt-[10px]
             "
           >
-            A new chapter begins
+            {saveTheDate.eyebrow}
           </p>
 
           <div className="mx-auto mt-3 flex items-center justify-center gap-3">
@@ -665,9 +668,11 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             text-[#39332f]
           "
         >
-          Save the
+          {saveTheDate.titleLead}
           <br />
-          <span className="serif-italic font-light text-[#b87e74]">Date</span>
+          <span className="serif-italic font-light text-[#b87e74]">
+            {saveTheDate.titleAccent}
+          </span>
         </motion.h1>
 
         {/* Ornament */}
@@ -698,9 +703,9 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               sm:text-[28px]
             "
           >
-            Aneena
+            {couple.bride.firstName}
             <span className="serif-italic mx-2 text-[#bd897c]">&</span>
-            Loyed
+            {couple.groom.firstName}
           </p>
 
           <p
@@ -713,7 +718,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               sm:text-[10px]
             "
           >
-            15 November 2026
+            {date.display}
           </p>
         </motion.div>
 
@@ -776,8 +781,8 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
           "
         >
           <img
-            src="/images/save-date.webp"
-            alt="Wedding table setting"
+            src={assets.saveTheDate}
+            alt={saveTheDate.imageAlt}
             loading="eager"
             decoding="async"
             className="h-full w-full object-cover object-[center_38%]"
@@ -897,7 +902,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
             touch-manipulation
           "
         >
-          <span className="relative z-10">Open invitation</span>
+          <span className="relative z-10">{saveTheDate.cta}</span>
 
           <ArrowUpRight
             size={12}
@@ -951,7 +956,7 @@ export default function SaveTheDate({ onOpen }: { onOpen: () => void }) {
               mb-[10px]
             "
           >
-            We can't wait to celebrate with you
+            {saveTheDate.footer}
           </p>
         </motion.div>
       </motion.div>

@@ -16,9 +16,12 @@ import Venue from "@/components/wedding/Venue";
 import RSVP from "@/components/wedding/RSVP";
 import Upload from "@/components/wedding/Upload";
 import Footer from "@/components/wedding/Footer";
+import { weddingConfig } from "@/config/wedding";
+
+const { flags, music } = weddingConfig;
 
 export default function WeddingExperience() {
-  const [opened, setOpened] = useState(false);
+  const [opened, setOpened] = useState(!flags.saveTheDate);
   const [muted, setMuted] = useState(false);
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -54,7 +57,7 @@ export default function WeddingExperience() {
 
     try {
       audio.currentTime = 0;
-      audio.volume = 0.65;
+      audio.volume = music.volume;
       audio.muted = false;
 
       await audio.play();
@@ -80,16 +83,20 @@ export default function WeddingExperience() {
 
   return (
     <main className="wedding-noise overflow-x-clip">
-      <audio
-        ref={audioRef}
-        src="/music/red-velvet.mpeg"
-        preload="auto"
-        loop
-        playsInline
-      />
+      {flags.music && (
+        <audio
+          ref={audioRef}
+          src={music.src}
+          preload={music.preload}
+          loop={music.loop}
+          playsInline
+        />
+      )}
 
       <AnimatePresence mode="wait">
-        {!opened && <SaveTheDate key="save-date" onOpen={handleOpenWedding} />}
+        {flags.saveTheDate && !opened && (
+          <SaveTheDate key="save-date" onOpen={handleOpenWedding} />
+        )}
       </AnimatePresence>
 
       {opened && (
@@ -102,33 +109,36 @@ export default function WeddingExperience() {
             ease: [0.22, 1, 0.36, 1],
           }}
         >
-          <Nav />
-          <Hero />
-          <Countdown />
-          {/* <Marquee /> */}
-          <Couple />
-          <Story />
-          <Gallery />
-          <Venue />
-          <RSVP />
-          <Upload />
-          <Footer />
+          {flags.nav && <Nav />}
+          {flags.hero && <Hero />}
+          {flags.countdown && <Countdown />}
+          {flags.marquee && <Marquee />}
+          {flags.couple && <Couple />}
+          {flags.story && <Story />}
+          {flags.gallery && <Gallery />}
+          {flags.venue && <Venue />}
+          {flags.rsvp && <RSVP />}
+          {flags.upload && <Upload />}
+          {flags.footer && <Footer />}
 
-          <motion.button
-            type="button"
-            onClick={toggleMute}
-            aria-label={muted ? "Unmute wedding music" : "Mute wedding music"}
-            title={muted ? "Unmute music" : "Mute music"}
-            initial={{ opacity: 0, scale: 0.8, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{
-              delay: 1,
-              duration: 0.6,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.94 }}
-            className="
+          {flags.music && (
+            <motion.button
+              type="button"
+              onClick={toggleMute}
+              aria-label={
+                muted ? music.unmuteAria : music.muteAria
+              }
+              title={muted ? music.unmuteTitle : music.muteTitle}
+              initial={{ opacity: 0, scale: 0.8, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{
+                delay: 1,
+                duration: 0.6,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.94 }}
+              className="
                   fixed
                   bottom-6
                   right-6
@@ -141,7 +151,7 @@ export default function WeddingExperience() {
                   rounded-full
                   border
                   border-white/20
-                  bg-[#691638]/80
+                  bg-(--theme-primary)/80
                   text-white
                   shadow-[0_8px_30px_rgba(0,0,0,0.18)]
                   backdrop-blur-md
@@ -149,7 +159,7 @@ export default function WeddingExperience() {
                   duration-300
                   hover:bg-white/15
                 "
-          >
+            >
             {/* Ambient ring */}
             <span
               className="
@@ -194,11 +204,12 @@ export default function WeddingExperience() {
       h-1
       w-1
       rounded-full
-      bg-[#C890A7]
-      shadow-[0_0_5px_rgba(200,144,167,0.7)]
+      bg-(--theme-accent)
+      shadow-[0_0_5px_rgba(var(--theme-accent-rgb),0.7)]
     "
             />
           </motion.button>
+          )}
         </motion.div>
       )}
     </main>

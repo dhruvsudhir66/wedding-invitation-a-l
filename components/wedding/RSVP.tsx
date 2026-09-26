@@ -5,15 +5,9 @@ import { Check, Send } from "lucide-react";
 import { motion } from "framer-motion";
 import Reveal from "@/components/ui/Reveal";
 import AddToCalendar from "@/components/wedding/AddToCalendar";
+import { weddingConfig } from "@/config/wedding";
 
-// =========================================================
-// GOOGLE APPS SCRIPT — RSVP ONLY
-// Replace this with your NEW RSVP Apps Script Web App URL.
-// Do NOT use your photo-upload Apps Script URL here.
-// =========================================================
-
-const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxRiGkA8_39HVV6Irzm59olEsI9YJbHq-ExFd9cCBKbA9aYF0dnr8jtl8UYAyX6Aiv3wQ/exec";
+const GOOGLE_SCRIPT_URL = weddingConfig.endpoints.rsvp;
 
 export default function RSVP() {
   const [submitted, setSubmitted] = useState(false);
@@ -37,13 +31,13 @@ export default function RSVP() {
     const note = String(formData.get("note") || "").trim();
 
     if (!name) {
-      setError("Please enter your name.");
+      setError(weddingConfig.copy.rsvp.errorName);
       setSubmitting(false);
       return;
     }
 
     if (!attendance) {
-      setError("Please let us know whether you'll be joining us.");
+      setError(weddingConfig.copy.rsvp.errorAttendance);
       setSubmitting(false);
       return;
     }
@@ -65,7 +59,7 @@ export default function RSVP() {
 
       if (!result.success) {
         throw new Error(
-          result.error || "Unable to send RSVP. Please try again.",
+          result.error || weddingConfig.copy.rsvp.errorSubmit,
         );
       }
 
@@ -76,7 +70,7 @@ export default function RSVP() {
       setError(
         err instanceof Error
           ? err.message
-          : "Something went wrong. Please try again.",
+          : weddingConfig.copy.rsvp.errorGeneric,
       );
     } finally {
       setSubmitting(false);
@@ -128,7 +122,7 @@ export default function RSVP() {
             h-[380px]
             w-[380px]
             rounded-full
-            bg-[#C890A7]/[0.06]
+            bg-[var(--theme-accent)]/[0.06]
             blur-[110px]
           "
         />
@@ -220,7 +214,7 @@ export default function RSVP() {
                     sm:text-[9px]
                   "
                 >
-                  Be our guest
+                    {weddingConfig.copy.rsvp.eyebrow}
                 </span>
               </div>
 
@@ -237,8 +231,10 @@ export default function RSVP() {
                   md:text-[68px]
                 "
               >
-                We'd love to
-                <span className="serif-italic font-light"> hear from you.</span>
+                {weddingConfig.copy.rsvp.titleLead}
+                <span className="serif-italic font-light">
+                  {weddingConfig.copy.rsvp.titleAccent}
+                </span>
               </h2>
 
               <p
@@ -253,8 +249,7 @@ export default function RSVP() {
                   sm:leading-7
                 "
               >
-                Let us know that you're coming. A little note from you would
-                make our day even more special.
+                {weddingConfig.copy.rsvp.description}
               </p>
 
               {/* Quote */}
@@ -279,7 +274,7 @@ export default function RSVP() {
                     sm:text-lg
                   "
                 >
-                  "The best moments are the ones we share."
+                  {weddingConfig.copy.rsvp.quote}
                 </p>
               </div>
 
@@ -289,16 +284,7 @@ export default function RSVP() {
 
               <div className="mt-9">
                 <div className="mt-5 flex justify-start">
-                  <AddToCalendar
-                    event={{
-                      title: "Aneena & Loyed — Wedding Day",
-                      start: "2026-11-15T00:00:00+05:30",
-                      end: "2026-11-16T00:00:00+05:30",
-                      location: "Kerala, India",
-                      description:
-                        "Save the date for Aneena & Loyed's wedding celebration.",
-                    }}
-                  />
+                  <AddToCalendar event={weddingConfig.calendar} />
                 </div>
               </div>
             </div>
@@ -404,7 +390,7 @@ export default function RSVP() {
                       sm:text-5xl
                     "
                   >
-                    Thank you.
+                    {weddingConfig.copy.rsvp.successTitle}
                   </h3>
 
                   <p
@@ -418,8 +404,7 @@ export default function RSVP() {
                       sm:leading-7
                     "
                   >
-                    Your response has been received. We cannot wait to celebrate
-                    this beautiful day with you.
+                    {weddingConfig.copy.rsvp.successBody}
                   </p>
 
                   <div className="mt-7 flex items-center gap-3">
@@ -432,7 +417,7 @@ export default function RSVP() {
                         text-[#514943]/55
                       "
                     >
-                      Aneena & Loyed
+                      {weddingConfig.couple.namesJoined}
                     </span>
 
                     <span className="h-px w-8 bg-[#8F596C]/35" />
@@ -500,7 +485,7 @@ export default function RSVP() {
                         text-[#514943]/55
                       "
                     >
-                      RSVP
+                      {weddingConfig.copy.rsvp.formEyebrow}
                     </p>
 
                     <h3
@@ -514,7 +499,7 @@ export default function RSVP() {
                         sm:text-4xl
                       "
                     >
-                      Save your place.
+                      {weddingConfig.copy.rsvp.formTitle}
                     </h3>
                   </div>
 
@@ -531,7 +516,7 @@ export default function RSVP() {
                     "
                   >
                     <span className="flex items-center gap-2">
-                      Name
+                      {weddingConfig.copy.rsvp.nameLabel}
                       <span className="text-[#8F596C]">*</span>
                     </span>
 
@@ -539,7 +524,7 @@ export default function RSVP() {
                       required
                       name="name"
                       autoComplete="name"
-                      placeholder="Your name"
+                      placeholder={weddingConfig.copy.rsvp.namePlaceholder}
                       disabled={submitting}
                       className="
                         mt-3
@@ -581,7 +566,7 @@ export default function RSVP() {
                         text-[#514943]/75
                       "
                     >
-                      Will you be joining us?
+                      {weddingConfig.copy.rsvp.attendanceLegend}
                       <span className="ml-2 text-[#8F596C]">*</span>
                     </legend>
 
@@ -599,8 +584,10 @@ export default function RSVP() {
                         <input
                           type="radio"
                           name="attendance"
-                          value="Yes, I'll be there"
-                          checked={attendance === "Yes, I'll be there"}
+                          value={weddingConfig.copy.rsvp.attendanceYes}
+                          checked={
+                            attendance === weddingConfig.copy.rsvp.attendanceYes
+                          }
                           onChange={(event) =>
                             setAttendance(event.target.value)
                           }
@@ -608,11 +595,11 @@ export default function RSVP() {
                           className="
                             h-4
                             w-4
-                            accent-[#691638]
+                            accent-[var(--theme-primary)]
                           "
                         />
 
-                        <span>Yes, I'll be there</span>
+                        <span>{weddingConfig.copy.rsvp.attendanceYes}</span>
                       </label>
 
                       <label
@@ -628,8 +615,10 @@ export default function RSVP() {
                         <input
                           type="radio"
                           name="attendance"
-                          value="Sorry, I can't make it"
-                          checked={attendance === "Sorry, I can't make it"}
+                          value={weddingConfig.copy.rsvp.attendanceNo}
+                          checked={
+                            attendance === weddingConfig.copy.rsvp.attendanceNo
+                          }
                           onChange={(event) =>
                             setAttendance(event.target.value)
                           }
@@ -637,11 +626,11 @@ export default function RSVP() {
                           className="
                             h-4
                             w-4
-                            accent-[#691638]
+                            accent-[var(--theme-primary)]
                           "
                         />
 
-                        <span>Sorry, I can't make it</span>
+                        <span>{weddingConfig.copy.rsvp.attendanceNo}</span>
                       </label>
                     </div>
                   </fieldset>
@@ -659,13 +648,16 @@ export default function RSVP() {
                     "
                   >
                     <span>
-                      Note <span className="text-[#514943]/35">(optional)</span>
+                      {weddingConfig.copy.rsvp.noteLabel}{" "}
+                      <span className="text-[#514943]/35">
+                        {weddingConfig.copy.rsvp.noteOptional}
+                      </span>
                     </span>
 
                     <textarea
                       name="note"
                       rows={4}
-                      placeholder="A note for the couple..."
+                      placeholder={weddingConfig.copy.rsvp.notePlaceholder}
                       disabled={submitting}
                       className="
                         mt-3
@@ -706,7 +698,7 @@ export default function RSVP() {
                         py-3
                         text-[10px]
                         leading-5
-                        text-[#691638]
+                        text-[var(--theme-primary)]
                       "
                     >
                       {error}
@@ -736,8 +728,8 @@ export default function RSVP() {
                         items-center
                         gap-3
                         border
-                        border-[#691638]/70
-                        bg-[#691638]/70
+                        border-[var(--theme-primary)]/70
+                        bg-[var(--theme-primary)]/70
                         px-6
                         py-3.5
                         text-[8px]
@@ -751,7 +743,9 @@ export default function RSVP() {
                         disabled:opacity-60
                       "
                     >
-                      {submitting ? "Sending..." : "Send RSVP"}
+                      {submitting
+                        ? weddingConfig.copy.rsvp.submitBusy
+                        : weddingConfig.copy.rsvp.submitIdle}
 
                       <Send
                         size={13}

@@ -2,63 +2,9 @@
 
 import Image from "next/image";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { weddingConfig } from "@/config/wedding";
 
-const photos = [
-  {
-    src: "/images/gallery/couple-gallery-1.webp",
-    alt: "Long Drives",
-    number: "01",
-    aspect: "aspect-[4/5]",
-    imageClass: "object-[center_42%]",
-    desktop: "md:col-span-4 md:translate-y-8",
-    mobile: "translate-y-0",
-  },
-  {
-    src: "/images/gallery/couple-gallery-2.webp",
-    alt: "Together",
-    number: "02",
-    aspect: "aspect-[5/6]",
-    imageClass: "object-center",
-    desktop: "md:col-span-5 md:-translate-y-2",
-    mobile: "translate-y-6",
-  },
-  {
-    src: "/images/gallery/couple-gallery-3.webp",
-    alt: "Waves & Tides",
-    number: "03",
-    aspect: "aspect-[4/5]",
-    imageClass: "object-[center_48%]",
-    desktop: "md:col-span-3 md:translate-y-28",
-    mobile: "translate-y-0",
-  },
-  {
-    src: "/images/gallery/couple-gallery-4.webp",
-    alt: "Date Nights",
-    number: "04",
-    aspect: "aspect-[5/6]",
-    imageClass: "object-center",
-    desktop: "md:col-span-5 md:translate-y-20",
-    mobile: "translate-y-10",
-  },
-  {
-    src: "/images/gallery/couple-gallery-5.webp",
-    alt: "Celebration",
-    number: "05",
-    aspect: "aspect-[4/5]",
-    imageClass: "object-[center_42%]",
-    desktop: "md:col-span-4 md:-translate-y-4",
-    mobile: "translate-y-0",
-  },
-  {
-    src: "/images/gallery/couple-gallery-7.webp",
-    alt: "Tea + Laughter",
-    number: "06",
-    aspect: "aspect-[5/6]",
-    imageClass: "object-[center_42%]",
-    desktop: "md:col-span-5 md:translate-y-16",
-    mobile: "translate-y-8",
-  },
-] as const;
+const photos = weddingConfig.gallery;
 
 function Spark() {
   return (
@@ -66,9 +12,9 @@ function Spark() {
       aria-hidden="true"
       className="relative flex h-5 w-5 items-center justify-center"
     >
-      <span className="absolute h-px w-5 bg-[#C890A7]/40" />
-      <span className="absolute h-5 w-px bg-[#C890A7]/40" />
-      <span className="relative h-1.5 w-1.5 rotate-45 bg-[#C890A7]/60" />
+      <span className="absolute h-px w-5 bg-(--theme-accent)/40" />
+      <span className="absolute h-5 w-px bg-(--theme-accent)/40" />
+      <span className="relative h-1.5 w-1.5 rotate-45 bg-(--theme-accent)/60" />
     </span>
   );
 }
@@ -104,7 +50,7 @@ export default function Gallery() {
             -translate-x-1/2
             -translate-y-1/2
             rounded-full
-            bg-[radial-gradient(circle,rgba(200,144,167,0.075)_0%,rgba(200,144,167,0.035)_42%,transparent_72%)]
+            bg-[radial-gradient(circle,rgba(var(--theme-accent-rgb),0.075)_0%,rgba(var(--theme-accent-rgb),0.035)_42%,transparent_72%)]
             sm:h-[520px]
             sm:w-[520px]
             md:h-[700px]
@@ -134,7 +80,7 @@ export default function Gallery() {
             h-[320px]
             w-[320px]
             rounded-full
-            bg-[radial-gradient(circle,rgba(200,144,167,0.05)_0%,rgba(200,144,167,0.02)_45%,transparent_72%)]
+            bg-[radial-gradient(circle,rgba(var(--theme-accent-rgb),0.05)_0%,rgba(var(--theme-accent-rgb),0.02)_45%,transparent_72%)]
             sm:h-[440px]
             sm:w-[440px]
           "
@@ -153,12 +99,12 @@ export default function Gallery() {
             font-light
             leading-none
             tracking-[-0.08em]
-            text-[#691638]/[0.025]
+            text-(--theme-primary)/[0.025]
             sm:text-[260px]
             md:text-[390px]
           "
         >
-          A&L
+            {weddingConfig.couple.initials}
         </div>
 
         {/* Editorial rings are static: no continuous transform animation. */}
@@ -174,7 +120,7 @@ export default function Gallery() {
             rotate-[18deg]
             rounded-[50%]
             border
-            border-[#C890A7]/[0.045]
+            border-(--theme-accent)/[0.045]
             sm:h-[620px]
             sm:w-[400px]
             md:h-[800px]
@@ -194,7 +140,7 @@ export default function Gallery() {
             rotate-[-22deg]
             rounded-[50%]
             border
-            border-[#691638]/[0.02]
+            border-(--theme-primary)/[0.02]
             sm:h-[540px]
             sm:w-[300px]
             md:h-[720px]
@@ -208,26 +154,26 @@ export default function Gallery() {
             absolute
             inset-0
             opacity-[0.018]
-            [background-image:radial-gradient(rgba(105,22,56,0.8)_0.5px,transparent_0.5px)]
+            [background-image:radial-gradient(rgba(var(--theme-primary-rgb),0.8)_0.5px,transparent_0.5px)]
             [background-size:6px_6px]
           "
         />
 
         {/* Outer editorial frame. */}
-        <div className="absolute inset-4 border border-[#691638]/[0.025] sm:inset-6 md:inset-8" />
-        <div className="absolute inset-7 border border-[#C890A7]/[0.025] sm:inset-10 md:inset-12" />
+        <div className="absolute inset-4 border border-(--theme-primary)/[0.025] sm:inset-6 md:inset-8" />
+        <div className="absolute inset-7 border border-(--theme-accent)/[0.025] sm:inset-10 md:inset-12" />
 
-        <div className="absolute left-6 top-6 h-8 w-8 border-l border-t border-[#691638]/[0.055] sm:left-10 sm:top-10" />
-        <div className="absolute right-6 top-6 h-8 w-8 border-r border-t border-[#691638]/[0.055] sm:right-10 sm:top-10" />
-        <div className="absolute bottom-6 left-6 h-8 w-8 border-b border-l border-[#691638]/[0.055] sm:bottom-10 sm:left-10" />
-        <div className="absolute bottom-6 right-6 h-8 w-8 border-b border-r border-[#691638]/[0.055] sm:bottom-10 sm:right-10" />
+        <div className="absolute left-6 top-6 h-8 w-8 border-l border-t border-(--theme-primary)/[0.055] sm:left-10 sm:top-10" />
+        <div className="absolute right-6 top-6 h-8 w-8 border-r border-t border-(--theme-primary)/[0.055] sm:right-10 sm:top-10" />
+        <div className="absolute bottom-6 left-6 h-8 w-8 border-b border-l border-(--theme-primary)/[0.055] sm:bottom-10 sm:left-10" />
+        <div className="absolute bottom-6 right-6 h-8 w-8 border-b border-r border-(--theme-primary)/[0.055] sm:bottom-10 sm:right-10" />
       </div>
 
       <div className="container-wedding relative z-10">
         <div className="relative">
           <SectionHeading
-            eyebrow="A few frames"
-            title="Moments worth keeping."
+            eyebrow={weddingConfig.copy.gallery.eyebrow}
+            title={weddingConfig.copy.gallery.title}
             align="center"
           />
 
@@ -268,7 +214,7 @@ export default function Gallery() {
               -translate-x-1/2
               bg-gradient-to-b
               from-transparent
-              via-[#C890A7]/[0.14]
+              via-(--theme-accent)/[0.14]
               to-transparent
               md:block
             "
@@ -432,12 +378,12 @@ export default function Gallery() {
               h-16
               w-32
               rounded-full
-              bg-[radial-gradient(ellipse,rgba(200,144,167,0.08)_0%,transparent_72%)]
+              bg-[radial-gradient(ellipse,rgba(var(--theme-accent-rgb),0.08)_0%,transparent_72%)]
             "
           />
 
           <div className="relative flex items-center gap-5">
-            <span className="h-px w-12 bg-[#691638]/[0.10] sm:w-20" />
+            <span className="h-px w-12 bg-(--theme-primary)/[0.10] sm:w-20" />
 
             <div
               aria-hidden="true"
@@ -449,13 +395,13 @@ export default function Gallery() {
                 justify-center
                 rounded-full
                 border
-                border-[#C890A7]/30
+                border-(--theme-accent)/30
               "
             >
-              <span className="h-2 w-2 rotate-45 bg-[#C890A7]/65" />
+              <span className="h-2 w-2 rotate-45 bg-(--theme-accent)/65" />
             </div>
 
-            <span className="h-px w-12 bg-[#691638]/[0.10] sm:w-20" />
+            <span className="h-px w-12 bg-(--theme-primary)/[0.10] sm:w-20" />
           </div>
         </div>
       </div>

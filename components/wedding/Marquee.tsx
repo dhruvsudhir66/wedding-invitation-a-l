@@ -1,10 +1,7 @@
+import { weddingConfig } from "@/config/wedding";
+
 export default function Marquee() {
-  const words = [
-    "Aneena & Loyed",
-    "15.11.2026",
-    "Bethrothal",
-    "Forever starts here",
-  ];
+  const words = weddingConfig.copy.marquee;
 
   return (
     <div

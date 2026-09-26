@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { ArrowDown, CalendarDays } from "lucide-react";
 import Image from "next/image";
+import { weddingConfig } from "@/config/wedding";
 
 const bokehLights = [
   { left: "6%", top: "16%", size: 110, delay: 0, duration: 14, opacity: 0.14 },
@@ -23,6 +24,7 @@ const particles = Array.from({ length: 14 }, (_, index) => ({
 
 export default function Hero() {
   const reduceMotion = useReducedMotion();
+  const { couple, date, assets, copy } = weddingConfig;
 
   return (
     <section
@@ -32,7 +34,7 @@ export default function Hero() {
       {/* HERO IMAGE — one static image layer */}
       <div className="absolute inset-0">
         <Image
-          src="/images/hero-blurred.png"
+          src={assets.hero}
           alt=""
           fill
           priority
@@ -180,7 +182,7 @@ export default function Hero() {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="eyebrow-white text-white"
         >
-          With joyful hearts, we invite you
+          {copy.hero.eyebrow}
         </motion.p>
 
         <motion.h1
@@ -189,9 +191,9 @@ export default function Hero() {
           transition={{ delay: 0.08, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="mt-5 max-w-5xl font-display text-[clamp(70px,13vw,170px)] leading-[.78] tracking-[-.065em]"
         >
-          Aneena
+          {couple.bride.firstName}
           <span className="serif-italic font-light"> & </span>
-          Loyed
+          {couple.groom.firstName}
         </motion.h1>
 
         <motion.div
@@ -202,19 +204,19 @@ export default function Hero() {
         >
           <span className="inline-flex items-center gap-2">
             <CalendarDays size={15} />
-            Sunday, 15 November 2026
+            {date.displayLong}
           </span>
           <span className="hidden h-1 w-1 rounded-full bg-white/60 md:block" />
         </motion.div>
 
         <motion.a
-          href="#story"
+          href={copy.hero.ctaHref}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.52, duration: 0.6 }}
           className="mt-14 inline-flex items-center gap-3 text-[10px] uppercase tracking-[.25em] text-white/80 touch-manipulation"
         >
-          Discover our story
+          {copy.hero.cta}
           <ArrowDown size={14} />
         </motion.a>
       </div>

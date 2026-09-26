@@ -9,6 +9,7 @@ import {
   X,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { weddingConfig } from "@/config/wedding";
 
 type CalendarEvent = {
   title: string;
@@ -47,7 +48,7 @@ function formatDuration(totalSeconds: number) {
 
 export default function AddToCalendar({
   event,
-  label = "Add to calendar",
+  label = weddingConfig.calendar.addLabel,
 }: AddToCalendarProps) {
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -206,7 +207,7 @@ export default function AddToCalendar({
           gap-2.5
           overflow-hidden
           border
-          border-[#C890A7]/45
+          border-[var(--theme-accent)]/45
           bg-[#FDF9F7]
           px-5
           py-2.5
@@ -214,7 +215,7 @@ export default function AddToCalendar({
           shadow-[0_5px_18px_rgba(143,89,108,0.07)]
           transition-all
           duration-300
-          hover:border-[#C890A7]/70
+          hover:border-[var(--theme-accent)]/70
           hover:bg-[#F8EBE6]
           hover:shadow-[0_8px_24px_rgba(143,89,108,0.10)]
         "
@@ -226,7 +227,7 @@ export default function AddToCalendar({
             absolute
             inset-[3px]
             border
-            border-[#C890A7]/10
+            border-[var(--theme-accent)]/10
           "
         />
 
@@ -241,7 +242,7 @@ export default function AddToCalendar({
             items-center
             justify-center
             border
-            border-[#C890A7]/25
+            border-[var(--theme-accent)]/25
             bg-[#E8D6D8]/45
           "
         >
@@ -271,7 +272,7 @@ export default function AddToCalendar({
         </span>
 
         {/* Divider */}
-        <span className="relative z-10 h-4 w-px bg-[#C890A7]/20" />
+        <span className="relative z-10 h-4 w-px bg-[var(--theme-accent)]/20" />
 
         {/* Chevron */}
         <ChevronDown
@@ -296,7 +297,7 @@ export default function AddToCalendar({
             left-1/2
             h-px
             -translate-x-1/2
-            bg-[#C890A7]
+            bg-[var(--theme-accent)]
           "
           animate={{
             width: open ? 34 : 14,
@@ -344,13 +345,13 @@ export default function AddToCalendar({
               -translate-x-1/2
               overflow-hidden
               border
-              border-[#C890A7]/25
+              border-[var(--theme-accent)]/25
               bg-[#FDF9F7]
               shadow-[0_18px_50px_rgba(105,22,56,0.12)]
             "
           >
             {/* Top accent */}
-            <div className="h-px w-full bg-[#C890A7]/50" />
+            <div className="h-px w-full bg-[var(--theme-accent)]/50" />
 
             {/* Header */}
             <div
@@ -359,7 +360,7 @@ export default function AddToCalendar({
                 items-start
                 justify-between
                 border-b
-                border-[#C890A7]/15
+                border-[var(--theme-accent)]/15
                 bg-[#E8D6D8]/30
                 px-4
                 py-3.5
@@ -374,7 +375,7 @@ export default function AddToCalendar({
                     text-[#8F596C]/65
                   "
                 >
-                  Save the date
+                  {weddingConfig.calendar.overlayEyebrow}
                 </p>
 
                 <p
@@ -384,7 +385,7 @@ export default function AddToCalendar({
                     text-[17px]
                     leading-none
                     tracking-[-0.025em]
-                    text-[#691638]
+                    text-[var(--theme-primary)]
                   "
                 >
                   {event.title}
@@ -398,7 +399,7 @@ export default function AddToCalendar({
                 className="
                   text-[#8F596C]/40
                   transition-colors
-                  hover:text-[#691638]
+                  hover:text-[var(--theme-primary)]
                 "
               >
                 <X size={12} strokeWidth={1.2} />
@@ -428,7 +429,7 @@ export default function AddToCalendar({
                 onClick={openYahooCalendar}
               />
 
-              <div className="mx-2 my-1 border-t border-[#C890A7]/12" />
+              <div className="mx-2 my-1 border-t border-[var(--theme-accent)]/12" />
 
               <CalendarOption
                 title="Apple / Other"
@@ -474,7 +475,7 @@ function CalendarOption({
       "
     >
       <div>
-        <p className="text-[9px] text-[#691638]">{title}</p>
+        <p className="text-[9px] text-[var(--theme-primary)]">{title}</p>
 
         <p
           className="

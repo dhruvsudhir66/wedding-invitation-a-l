@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUpRight, Camera, Check, Heart, Mail, X } from "lucide-react";
 import Reveal from "@/components/ui/Reveal";
+import { weddingConfig } from "@/config/wedding";
 
 type PopupType = "invitation" | "greeting" | null;
 
@@ -14,12 +15,9 @@ type Photo = {
   file: File;
 };
 
-const GOOGLE_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxJ2RQiVhs2-wJ0pjcJPRjFm-M3OmFiYUfqSptQBOC8nvH39UPRCtc4BFwAN1-kn--7/exec";
-
-// Replace this with your NEW Send Wishes Apps Script Web App URL.
-const WISHES_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbx9DmkJuMlGaY0CR_ccaa3L2pLELRx24a-3TPN39GqTq1XYiKAlZVoESqVuk30VBvmG4A/exec";
+const GOOGLE_SCRIPT_URL = weddingConfig.endpoints.photos;
+const WISHES_SCRIPT_URL = weddingConfig.endpoints.wishes;
+const uploadCopy = weddingConfig.copy.upload;
 
 export default function Upload() {
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -207,7 +205,7 @@ export default function Upload() {
       setUploadError(
         error instanceof Error
           ? error.message
-          : "Something went wrong while uploading your photos.",
+          : uploadCopy.errorUpload,
       );
     } finally {
       setIsUploading(false);
@@ -254,7 +252,7 @@ export default function Upload() {
 
       if (!result.success) {
         throw new Error(
-          result.error || "Unable to send your wishes. Please try again.",
+          result.error || uploadCopy.errorWishUnable,
         );
       }
 
@@ -267,7 +265,7 @@ export default function Upload() {
       setWishError(
         error instanceof Error
           ? error.message
-          : "Something went wrong while sending your wishes.",
+          : uploadCopy.errorWish,
       );
     } finally {
       setIsSendingWish(false);
@@ -307,7 +305,7 @@ export default function Upload() {
       w-[90vw]
       -translate-x-1/2
       rounded-full
-      bg-[#C890A7]/[0.055]
+      bg-[var(--theme-accent)]/[0.055]
       sm:h-[500px]
       sm:w-[65vw]
     "
@@ -335,7 +333,7 @@ export default function Upload() {
       h-[360px]
       w-[360px]
       rounded-full
-      bg-[#C890A7]/[0.05]
+      bg-[var(--theme-accent)]/[0.05]
     "
           />
 
@@ -386,7 +384,7 @@ export default function Upload() {
 
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3">
-                  <span className="h-px w-9 bg-[#691638]/15 sm:w-12" />
+                  <span className="h-px w-9 bg-[var(--theme-primary)]/15 sm:w-12" />
 
                   <p
                     className="
@@ -394,14 +392,14 @@ export default function Upload() {
                       font-medium
                       uppercase
                       tracking-[0.3em]
-                      text-[#691638]/50
+                      text-[var(--theme-primary)]/50
                       sm:text-[9px]
                     "
                   >
-                    A little something
+                    {uploadCopy.eyebrow}
                   </p>
 
-                  <span className="h-px w-9 bg-[#691638]/15 sm:w-12" />
+                  <span className="h-px w-9 bg-[var(--theme-primary)]/15 sm:w-12" />
                 </div>
 
                 <h2
@@ -413,16 +411,16 @@ export default function Upload() {
                     text-[42px]
                     leading-[0.92]
                     tracking-[-0.05em]
-                    text-[#691638]
+                    text-[var(--theme-primary)]
                     sm:max-w-2xl
                     sm:text-[54px]
                     md:text-[64px]
                   "
                 >
-                  Keep this moment
+                  {uploadCopy.titleLead}
                   <br />
                   <span className="serif-italic font-light">
-                    close to your heart.
+                    {uploadCopy.titleAccent}
                   </span>
                 </h2>
 
@@ -433,14 +431,13 @@ export default function Upload() {
                     max-w-[340px]
                     text-[11px]
                     leading-6
-                    text-[#691638]/55
+                    text-[var(--theme-primary)]/55
                     sm:max-w-lg
                     sm:text-[13px]
                     sm:leading-7
                   "
                 >
-                  View our invitation, leave us a wish, or capture a little
-                  memory from the day.
+                  {uploadCopy.description}
                 </p>
               </div>
 
@@ -467,7 +464,7 @@ export default function Upload() {
                 ----------------------------------------------- */}
 
                 <ActionItem
-                  label="View invitation"
+                  label={uploadCopy.invitationLabel}
                   icon={
                     <div className="relative">
                       <Mail size={24} strokeWidth={1.1} />
@@ -480,7 +477,7 @@ export default function Upload() {
                           h-1.5
                           w-1.5
                           rounded-full
-                          bg-[#C890A7]
+                          bg-[var(--theme-accent)]
                         "
                       />
                     </div>
@@ -497,7 +494,7 @@ export default function Upload() {
                     hidden
                     h-12
                     w-px
-                    bg-[#691638]/10
+                    bg-[var(--theme-primary)]/10
                     sm:block
                   "
                 />
@@ -508,7 +505,7 @@ export default function Upload() {
                     h-1.5
                     w-1.5
                     rotate-45
-                    bg-[#C890A7]/60
+                    bg-[var(--theme-accent)]/60
                     sm:hidden
                   "
                 />
@@ -518,7 +515,7 @@ export default function Upload() {
                 ----------------------------------------------- */}
 
                 <ActionItem
-                  label="Send your wishes"
+                  label={uploadCopy.wishesLabel}
                   icon={
                     <div className="relative">
                       <Heart size={24} strokeWidth={1.1} />
@@ -531,7 +528,7 @@ export default function Upload() {
                           h-1.5
                           w-1.5
                           rounded-full
-                          bg-[#C890A7]/70
+                          bg-[var(--theme-accent)]/70
                         "
                       />
                     </div>
@@ -550,7 +547,7 @@ export default function Upload() {
                     h-1.5
                     w-1.5
                     rotate-45
-                    bg-[#C890A7]/60
+                    bg-[var(--theme-accent)]/60
                     sm:hidden
                   "
                 />
@@ -560,7 +557,7 @@ export default function Upload() {
                 ----------------------------------------------- */}
 
                 <ActionItem
-                  label="Share a memory"
+                  label={uploadCopy.photosLabel}
                   icon={<Camera size={24} strokeWidth={1.1} />}
                   onClick={() => cameraInputRef.current?.click()}
                   delay={0.2}
@@ -594,7 +591,7 @@ export default function Upload() {
                     <div
                       className="
                         border
-                        border-[#691638]/10
+                        border-[var(--theme-primary)]/10
                         bg-[#F3E7E3]/75
                         p-5
                         sm:p-7
@@ -616,10 +613,10 @@ export default function Upload() {
                               text-[8px]
                               uppercase
                               tracking-[0.25em]
-                              text-[#691638]/50
+                              text-[var(--theme-primary)]/50
                             "
                           >
-                            Your memories
+                            {uploadCopy.memoriesEyebrow}
                           </p>
 
                           <h3
@@ -628,12 +625,15 @@ export default function Upload() {
                               font-display
                               text-2xl
                               tracking-[-0.03em]
-                              text-[#691638]
+                              text-[var(--theme-primary)]
                               sm:text-3xl
                             "
                           >
                             {photos.length}{" "}
-                            {photos.length === 1 ? "photo" : "photos"} selected
+                            {photos.length === 1
+                              ? uploadCopy.photosSelectedSingular
+                              : uploadCopy.photosSelectedPlural}{" "}
+                            {uploadCopy.photosSelectedSuffix}
                           </h3>
                         </div>
 
@@ -648,13 +648,13 @@ export default function Upload() {
                             text-[8px]
                             uppercase
                             tracking-[0.18em]
-                            text-[#691638]/55
+                            text-[var(--theme-primary)]/55
                             transition-colors
-                            hover:text-[#691638]
+                            hover:text-[var(--theme-primary)]
                           "
                         >
                           <Camera size={12} strokeWidth={1.3} />
-                          Add another
+                          {uploadCopy.addAnother}
                         </button>
                       </div>
 
@@ -699,7 +699,7 @@ export default function Upload() {
                             >
                               <img
                                 src={photo.url}
-                                alt="Selected memory"
+                                alt={uploadCopy.selectedMemoryAlt}
                                 className="
                                   h-full
                                   w-full
@@ -716,7 +716,7 @@ export default function Upload() {
                                   absolute
                                   inset-0
                                   bg-gradient-to-t
-                                  from-[#691638]/20
+                                  from-[var(--theme-primary)]/20
                                   via-transparent
                                   to-transparent
                                 "
@@ -725,7 +725,7 @@ export default function Upload() {
                               <button
                                 type="button"
                                 onClick={() => removePhoto(photo.id)}
-                                aria-label="Remove photo"
+                                aria-label={uploadCopy.removePhotoAria}
                                 className="
                                   absolute
                                   right-2
@@ -738,7 +738,7 @@ export default function Upload() {
                                   border
                                   border-white/40
                                   bg-[#F8EBE6]/85
-                                  text-[#691638]
+                                  text-[var(--theme-primary)]
                                   backdrop-blur-sm
                                   transition-colors
                                   hover:bg-white
@@ -762,13 +762,13 @@ export default function Upload() {
                               justify-center
                               border
                               border-dashed
-                              border-[#691638]/20
+                              border-[var(--theme-primary)]/20
                               bg-[#F8EBE6]/40
-                              text-[#691638]/60
+                              text-[var(--theme-primary)]/60
                               transition-all
-                              hover:border-[#C890A7]/60
+                              hover:border-[var(--theme-accent)]/60
                               hover:bg-[#F8EBE6]/80
-                              hover:text-[#691638]
+                              hover:text-[var(--theme-primary)]
                             "
                           >
                             <Camera size={20} strokeWidth={1.2} />
@@ -796,14 +796,14 @@ export default function Upload() {
                           items-center
                           gap-2
                           border-t
-                          border-[#691638]/10
+                          border-[var(--theme-primary)]/10
                           pt-5
                         "
                       >
                         <Check
                           size={13}
                           strokeWidth={1.5}
-                          className="text-[#691638]"
+                          className="text-[var(--theme-primary)]"
                         />
 
                         <span
@@ -811,16 +811,16 @@ export default function Upload() {
                             text-[8px]
                             uppercase
                             tracking-[0.15em]
-                            text-[#691638]/50
+                            text-[var(--theme-primary)]/50
                           "
                         >
-                          Photos selected on this device
+                          {uploadCopy.photosSelectedOnDevice}
                         </span>
                       </div>
 
                       {/* Upload */}
 
-                      <div className="mt-6 border-t border-[#691638]/10 pt-5">
+                      <div className="mt-6 border-t border-[var(--theme-primary)]/10 pt-5">
                         <button
                           type="button"
                           onClick={uploadPhotos}
@@ -830,8 +830,8 @@ export default function Upload() {
                             items-center
                             gap-3
                             border
-                            border-[#691638]
-                            bg-[#691638]
+                            border-[var(--theme-primary)]
+                            bg-[var(--theme-primary)]
                             px-6
                             py-3.5
                             text-[8px]
@@ -847,26 +847,26 @@ export default function Upload() {
                           "
                         >
                           {isUploading
-                            ? "Uploading memories..."
-                            : "Submit photos"}
+                            ? uploadCopy.submitPhotosBusy
+                            : uploadCopy.submitPhotosIdle}
                           {!isUploading && (
                             <ArrowUpRight size={12} strokeWidth={1.3} />
                           )}
                         </button>
 
                         {uploadComplete && (
-                          <div className="mt-4 flex items-center gap-2 text-[8px] uppercase tracking-[0.15em] text-[#691638]/55">
+                          <div className="mt-4 flex items-center gap-2 text-[8px] uppercase tracking-[0.15em] text-[var(--theme-primary)]/55">
                             <Check
                               size={13}
                               strokeWidth={1.5}
-                              className="text-[#691638]"
+                              className="text-[var(--theme-primary)]"
                             />
-                            <span>Your memories have been shared.</span>
+                            <span>{uploadCopy.uploadSuccess}</span>
                           </div>
                         )}
 
                         {uploadError && (
-                          <p className="mt-4 max-w-xl text-[9px] leading-5 text-[#691638]/60">
+                          <p className="mt-4 max-w-xl text-[9px] leading-5 text-[var(--theme-primary)]/60">
                             {uploadError}
                           </p>
                         )}
@@ -892,7 +892,7 @@ export default function Upload() {
               ================================================= */}
 
               <div className="mt-10 flex items-center justify-center gap-3">
-                <span className="h-px w-8 bg-[#691638]/10" />
+                <span className="h-px w-8 bg-[var(--theme-primary)]/10" />
 
                 <span
                   className="
@@ -900,12 +900,12 @@ export default function Upload() {
                     w-1.5
                     rotate-45
                     border
-                    border-[#C890A7]/50
+                    border-[var(--theme-accent)]/50
                     bg-[#F8EBE6]
                   "
                 />
 
-                <span className="h-px w-8 bg-[#691638]/10" />
+                <span className="h-px w-8 bg-[var(--theme-primary)]/10" />
               </div>
             </div>
           </Reveal>
@@ -938,7 +938,7 @@ export default function Upload() {
               flex
               items-center
               justify-center
-              bg-[#691638]/20
+              bg-[var(--theme-primary)]/20
               p-4
               sm:p-8
             "
@@ -975,7 +975,7 @@ export default function Upload() {
                   max-w-[680px]
                   overflow-hidden
                   border
-                  border-[#691638]/10
+                  border-[var(--theme-primary)]/10
                   bg-[#F8EBE6]
                   p-2
                   shadow-[0_30px_100px_rgba(105,22,56,0.20)]
@@ -991,7 +991,7 @@ export default function Upload() {
                     inset-3
                     z-10
                     border
-                    border-[#691638]/10
+                    border-[var(--theme-primary)]/10
                   "
                 />
 
@@ -999,7 +999,7 @@ export default function Upload() {
 
                 <button
                   type="button"
-                  aria-label="Close invitation"
+                  aria-label={uploadCopy.closeInvitationAria}
                   onClick={() => setPopup(null)}
                   className="
                     absolute
@@ -1012,13 +1012,13 @@ export default function Upload() {
                     items-center
                     justify-center
                     border
-                    border-[#691638]/10
+                    border-[var(--theme-primary)]/10
                     bg-[#F8EBE6]/90
-                    text-[#691638]/65
+                    text-[var(--theme-primary)]/65
                     transition-all
                     duration-300
                     hover:bg-white
-                    hover:text-[#691638]
+                    hover:text-[var(--theme-primary)]
                   "
                 >
                   <X size={15} strokeWidth={1.3} />
@@ -1028,8 +1028,8 @@ export default function Upload() {
 
                 <div className="max-h-[90vh] overflow-auto">
                   <img
-                    src="/images/invitation.png"
-                    alt="Wedding invitation"
+                    src={weddingConfig.assets.invitation}
+                    alt={uploadCopy.invitationAlt}
                     className="
                       mx-auto
                       h-auto
@@ -1074,7 +1074,7 @@ export default function Upload() {
                   max-w-[510px]
                   overflow-hidden
                   border
-                  border-[#691638]/10
+                  border-[var(--theme-primary)]/10
                   bg-[#F3E7E3]
                   px-6
                   py-8
@@ -1095,7 +1095,7 @@ export default function Upload() {
                     h-56
                     w-56
                     rounded-full
-                    bg-[#C890A7]/[0.12]
+                    bg-[var(--theme-accent)]/[0.12]
                     blur-[80px]
                   "
                 />
@@ -1122,7 +1122,7 @@ export default function Upload() {
                     absolute
                     inset-3
                     border
-                    border-[#691638]/[0.07]
+                    border-[var(--theme-primary)]/[0.07]
                     sm:inset-4
                   "
                 />
@@ -1131,7 +1131,7 @@ export default function Upload() {
 
                 <button
                   type="button"
-                  aria-label="Close greetings"
+                  aria-label={uploadCopy.closeGreetingsAria}
                   onClick={() => setPopup(null)}
                   className="
                     absolute
@@ -1144,12 +1144,12 @@ export default function Upload() {
                     items-center
                     justify-center
                     border
-                    border-[#691638]/10
+                    border-[var(--theme-primary)]/10
                     bg-[#F8EBE6]/70
-                    text-[#691638]/50
+                    text-[var(--theme-primary)]/50
                     transition-colors
                     hover:bg-[#F8EBE6]
-                    hover:text-[#691638]
+                    hover:text-[var(--theme-primary)]
                   "
                 >
                   <X size={14} strokeWidth={1.3} />
@@ -1168,14 +1168,14 @@ export default function Upload() {
                         items-center
                         justify-center
                         border
-                        border-[#C890A7]/30
+                        border-[var(--theme-accent)]/30
                         bg-[#F8EBE6]
                       "
                     >
                       <Heart
                         size={17}
                         strokeWidth={1.15}
-                        className="text-[#C890A7]"
+                        className="text-[var(--theme-accent)]"
                       />
                     </div>
 
@@ -1185,10 +1185,10 @@ export default function Upload() {
                         text-[8px]
                         uppercase
                         tracking-[0.28em]
-                        text-[#691638]/45
+                        text-[var(--theme-primary)]/45
                       "
                     >
-                      A little note
+                      {uploadCopy.wishesEyebrow}
                     </p>
 
                     <h3
@@ -1197,11 +1197,11 @@ export default function Upload() {
                         font-display
                         text-3xl
                         tracking-[-0.03em]
-                        text-[#691638]
+                        text-[var(--theme-primary)]
                         sm:text-4xl
                       "
                     >
-                      Send us your wishes.
+                      {uploadCopy.wishesTitle}
                     </h3>
 
                     <p
@@ -1211,11 +1211,10 @@ export default function Upload() {
                         max-w-sm
                         text-xs
                         leading-6
-                        text-[#691638]/50
+                        text-[var(--theme-primary)]/50
                       "
                     >
-                      Leave us a few words to carry with us into this beautiful
-                      new chapter.
+                      {uploadCopy.wishesDescription}
                     </p>
                   </div>
 
@@ -1232,10 +1231,10 @@ export default function Upload() {
                           text-[8px]
                           uppercase
                           tracking-[0.2em]
-                          text-[#691638]/50
+                          text-[var(--theme-primary)]/50
                         "
                       >
-                        Your name
+                        {uploadCopy.wishNameLabel}
                       </label>
 
                       <input
@@ -1245,20 +1244,20 @@ export default function Upload() {
                         required
                         disabled={isSendingWish}
                         type="text"
-                        placeholder="Enter your name"
+                        placeholder={uploadCopy.wishNamePlaceholder}
                         className="
                           mt-2
                           w-full
                           border-b
-                          border-[#691638]/15
+                          border-[var(--theme-primary)]/15
                           bg-transparent
                           px-0
                           py-3
                           text-sm
-                          text-[#691638]
+                          text-[var(--theme-primary)]
                           outline-none
-                          placeholder:text-[#691638]/25
-                          focus:border-[#C890A7]
+                          placeholder:text-[var(--theme-primary)]/25
+                          focus:border-[var(--theme-accent)]
                         "
                       />
                     </div>
@@ -1273,10 +1272,10 @@ export default function Upload() {
                           text-[8px]
                           uppercase
                           tracking-[0.2em]
-                          text-[#691638]/50
+                          text-[var(--theme-primary)]/50
                         "
                       >
-                        Your message
+                        {uploadCopy.wishMessageLabel}
                       </label>
 
                       <textarea
@@ -1286,22 +1285,22 @@ export default function Upload() {
                         required
                         disabled={isSendingWish}
                         rows={4}
-                        placeholder="Write something lovely..."
+                        placeholder={uploadCopy.wishMessagePlaceholder}
                         className="
                           mt-2
                           w-full
                           resize-none
                           border-b
-                          border-[#691638]/15
+                          border-[var(--theme-primary)]/15
                           bg-transparent
                           px-0
                           py-3
                           text-sm
                           leading-6
-                          text-[#691638]
+                          text-[var(--theme-primary)]
                           outline-none
-                          placeholder:text-[#691638]/25
-                          focus:border-[#C890A7]
+                          placeholder:text-[var(--theme-primary)]/25
+                          focus:border-[var(--theme-accent)]
                         "
                       />
                     </div>
@@ -1314,13 +1313,13 @@ export default function Upload() {
                         className="
                           mt-5
                           border
-                          border-[#691638]/10
+                          border-[var(--theme-primary)]/10
                           bg-[#E8D6D8]/45
                           px-4
                           py-3
                           text-[9px]
                           leading-5
-                          text-[#691638]/70
+                          text-[var(--theme-primary)]/70
                         "
                       >
                         {wishError}
@@ -1336,17 +1335,17 @@ export default function Upload() {
                           items-center
                           gap-2
                           border
-                          border-[#691638]/10
+                          border-[var(--theme-primary)]/10
                           bg-[#F8EBE6]/70
                           px-4
                           py-3
                           text-[9px]
                           leading-5
-                          text-[#691638]/70
+                          text-[var(--theme-primary)]/70
                         "
                       >
                         <Check size={13} strokeWidth={1.5} />
-                        Your wishes have been sent. Thank you.
+                        {uploadCopy.wishSuccess}
                       </div>
                     )}
 
@@ -1360,8 +1359,8 @@ export default function Upload() {
                         items-center
                         gap-3
                         border
-                        border-[#691638]/15
-                        bg-[#691638]
+                        border-[var(--theme-primary)]/15
+                        bg-[var(--theme-primary)]
                         px-5
                         py-3
                         text-[8px]
@@ -1374,7 +1373,9 @@ export default function Upload() {
                         hover:bg-[#7B244A]
                       "
                     >
-                      {isSendingWish ? "Sending..." : "Send wishes"}
+                      {isSendingWish
+                        ? uploadCopy.wishSubmitBusy
+                        : uploadCopy.wishSubmitIdle}
                       {!isSendingWish && (
                         <ArrowUpRight
                           size={12}
@@ -1462,13 +1463,13 @@ function ActionItem({
           items-center
           justify-center
           border
-          border-[#691638]/12
+          border-[var(--theme-primary)]/12
           bg-[#F3E7E3]
-          text-[#691638]
+          text-[var(--theme-primary)]
           shadow-[0_10px_30px_rgba(105,22,56,0.045)]
           transition-all
           duration-500
-          group-hover:border-[#C890A7]/50
+          group-hover:border-[var(--theme-accent)]/50
           group-hover:bg-[#F1DFDF]
           group-hover:shadow-[0_14px_35px_rgba(105,22,56,0.08)]
           sm:h-[84px]
@@ -1484,7 +1485,7 @@ function ActionItem({
             inset-2
             rotate-45
             border
-            border-[#C890A7]/20
+            border-[var(--theme-accent)]/20
             transition-transform
             duration-700
             group-hover:rotate-[135deg]
@@ -1517,10 +1518,10 @@ function ActionItem({
           text-[7px]
           uppercase
           tracking-[0.17em]
-          text-[#691638]/50
+          text-[var(--theme-primary)]/50
           transition-colors
           duration-300
-          group-hover:text-[#691638]
+          group-hover:text-[var(--theme-primary)]
           sm:text-[8px]
           sm:tracking-[0.2em]
         "

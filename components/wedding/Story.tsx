@@ -3,8 +3,11 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Reveal from "@/components/ui/Reveal";
+import { weddingConfig } from "@/config/wedding";
 
 export default function Story() {
+  const { assets, copy, couple, date } = weddingConfig;
+  const story = copy.story;
   return (
     <section
       id="story"
@@ -35,7 +38,7 @@ export default function Story() {
             w-[90vw]
             -translate-x-1/2
             rounded-full
-            bg-[#C890A7]/[0.08]
+            bg-(--theme-accent)/[0.08]
             blur-[110px]
             sm:h-[520px]
             sm:w-[70vw]
@@ -51,7 +54,7 @@ export default function Story() {
             h-[320px]
             w-[320px]
             rounded-full
-            bg-[#C890A7]/[0.055]
+            bg-(--theme-accent)/[0.055]
             blur-[90px]
             sm:h-[420px]
             sm:w-[420px]
@@ -87,7 +90,7 @@ export default function Story() {
             w-[260px]
             rotate-[-15deg]
             rounded-[50%]
-            bg-[#C890A7]/[0.09]
+            bg-(--theme-accent)/[0.09]
             blur-[1px]
             sm:h-20
             sm:w-[340px]
@@ -113,7 +116,7 @@ export default function Story() {
             w-[300px]
             rotate-[17deg]
             rounded-[50%]
-            bg-[#C890A7]/[0.07]
+            bg-(--theme-accent)/[0.07]
             blur-[1px]
             sm:h-24
             sm:w-[390px]
@@ -137,7 +140,7 @@ export default function Story() {
             inset-0
             opacity-[0.035]
             [background-image:radial-gradient(
-              rgba(105,22,56,0.7)_0.5px,
+              rgba(var(--theme-primary-rgb),0.7)_0.5px,
               transparent_0.5px
             )]
             [background-size:5px_5px]
@@ -153,7 +156,7 @@ export default function Story() {
               h-1
               w-1
               rounded-full
-              bg-[#C890A7]/40
+              bg-(--theme-accent)/40
             "
             style={{
               left: `${7 + ((index * 31) % 88)}%`,
@@ -195,7 +198,7 @@ export default function Story() {
         <Reveal>
           <div className="w-full max-w-2xl">
             <div className="flex items-center gap-3 sm:gap-4">
-              <span className="h-px w-9 bg-[#C890A7]/50 sm:w-12" />
+              <span className="h-px w-9 bg-(--theme-accent)/50 sm:w-12" />
 
               <span
                 className="
@@ -203,11 +206,11 @@ export default function Story() {
                   font-medium
                   uppercase
                   tracking-[0.3em]
-                  text-[#691638]
+                  text-(--theme-primary)
                   sm:text-[9px]
                 "
               >
-                Our story
+                {story.eyebrow}
               </span>
             </div>
 
@@ -219,14 +222,14 @@ export default function Story() {
                 text-[42px]
                 leading-[0.92]
                 tracking-[-0.045em]
-                text-[#691638]
+                text-(--theme-primary)
                 sm:max-w-xl
                 sm:text-[54px]
                 md:text-[68px]
               "
             >
-              It started
-              <span className="serif-italic font-light"> with a hello.</span>
+              {story.titleLead}
+              <span className="serif-italic font-light">{story.titleAccent}</span>
             </h2>
 
             <p
@@ -235,14 +238,13 @@ export default function Story() {
                 max-w-[340px]
                 text-[11px]
                 leading-6
-                text-[#691638]/65
+                text-(--theme-primary)/65
                 sm:max-w-lg
                 sm:text-[13px]
                 sm:leading-7
               "
             >
-              Two separate journeys slowly became one shared story, filled with
-              ordinary moments that somehow became the ones we treasure most.
+              {story.intro}
             </p>
           </div>
         </Reveal>
@@ -300,7 +302,7 @@ export default function Story() {
                     h-[72%]
                     w-[82%]
                     rounded-[52%_48%_46%_54%]
-                    bg-[#C890A7]/[0.15]
+                    bg-(--theme-accent)/[0.15]
                   "
                   animate={{
                     borderRadius: [
@@ -331,7 +333,7 @@ export default function Story() {
                     w-[82%]
                     rounded-[52%_48%_46%_54%]
                     border
-                    border-[#C890A7]/25
+                    border-(--theme-accent)/25
                     rotate-[-3deg]
                   "
                 />
@@ -377,14 +379,14 @@ export default function Story() {
                     overflow-hidden
                     rounded-[48%_52%_46%_54%]
                     bg-[#eadbd5]
-                    shadow-[0_22px_60px_rgba(105,22,56,0.12)]
+                    shadow-[0_22px_60px_rgba(var(--theme-primary-rgb),0.12)]
                     sm:h-[80%]
                     sm:w-[74%]
                   "
                 >
                   <Image
-                    src="/images/couple.jpeg"
-                    alt="Aneena and Loyed"
+                    src={assets.couple}
+                    alt={story.imageAlt}
                     fill
                     priority={false}
                     sizes="
@@ -414,7 +416,7 @@ export default function Story() {
                       bg-gradient-to-br
                       from-white/[0.08]
                       via-transparent
-                      to-[#691638]/[0.06]
+                      to-(--theme-primary)/[0.06]
                     "
                   />
 
@@ -483,13 +485,13 @@ export default function Story() {
                     border
                     border-[#f8ebe6]
                     bg-[#eadbd5]
-                    shadow-[0_16px_38px_rgba(105,22,56,0.12)]
+                    shadow-[0_16px_38px_rgba(var(--theme-primary-rgb),0.12)]
                     sm:h-[175px]
                     sm:w-[145px]
                   "
                 >
                   <Image
-                    src="/images/couple-2.webp"
+                    src={assets.coupleSecondary}
                     alt=""
                     fill
                     aria-hidden="true"
@@ -503,7 +505,7 @@ export default function Story() {
                     "
                   />
 
-                  <div className="absolute inset-0 bg-[#C890A7]/[0.07]" />
+                  <div className="absolute inset-0 bg-(--theme-accent)/[0.07]" />
 
                   <div className="absolute inset-[5px] border border-white/35" />
                 </motion.div>
@@ -536,7 +538,7 @@ export default function Story() {
                     z-30
                     rotate-[-4deg]
                     border
-                    border-[#691638]/15
+                    border-(--theme-primary)/15
                     bg-[#f8ebe6]/80
                     px-3
                     py-2
@@ -550,11 +552,11 @@ export default function Story() {
                       text-[7px]
                       uppercase
                       tracking-[0.22em]
-                      text-[#691638]/55
+                      text-(--theme-primary)/55
                       sm:text-[8px]
                     "
                   >
-                    Bethrothal
+                    {story.stampLabel}
                   </p>
 
                   <p
@@ -563,11 +565,11 @@ export default function Story() {
                       font-display
                       text-sm
                       tracking-[-0.02em]
-                      text-[#691638]
+                      text-(--theme-primary)
                       sm:text-base
                     "
                   >
-                    15 November 2026
+                    {date.display}
                   </p>
                 </motion.div>
 
@@ -584,7 +586,7 @@ export default function Story() {
                     h-12
                     w-px
                     origin-top
-                    bg-[#691638]/25
+                    bg-(--theme-primary)/25
                   "
                   initial={{
                     scaleY: 0,
@@ -611,7 +613,7 @@ export default function Story() {
                     w-2
                     rotate-45
                     border
-                    border-[#691638]/35
+                    border-(--theme-primary)/35
                     bg-[#f8ebe6]
                   "
                   initial={{
@@ -646,7 +648,7 @@ export default function Story() {
               >
                 {/* Small eyebrow */}
                 <div className="flex items-center gap-3">
-                  <span className="h-px w-8 bg-[#C890A7]/50" />
+                  <span className="h-px w-8 bg-(--theme-accent)/50" />
 
                   <span
                     className="
@@ -654,10 +656,10 @@ export default function Story() {
                       font-medium
                       uppercase
                       tracking-[0.28em]
-                      text-[#691638]/60
+                      text-(--theme-primary)/60
                     "
                   >
-                    A little bit of us
+                    {story.asideEyebrow}
                   </span>
                 </div>
 
@@ -669,14 +671,16 @@ export default function Story() {
                     text-[35px]
                     leading-[0.95]
                     tracking-[-0.04em]
-                    text-[#691638]
+                    text-(--theme-primary)
                     sm:max-w-lg
                     sm:text-[46px]
                     md:text-[52px]
                   "
                 >
-                  Somewhere between then
-                  <span className="serif-italic font-light"> and now.</span>
+                  {story.asideTitleLead}
+                  <span className="serif-italic font-light">
+                    {story.asideTitleAccent}
+                  </span>
                 </h3>
 
                 {/* Paragraphs */}
@@ -687,47 +691,30 @@ export default function Story() {
                     space-y-5
                     text-[11px]
                     leading-6
-                    text-[#691638]/65
+                    text-(--theme-primary)/65
                     sm:max-w-lg
                     sm:text-[13px]
                     sm:leading-7
                   "
                 >
-                  <p>
-                    Somewhere between then and now. It all started with a glance
-                    at church — a little eye contact that neither of us knew
-                    would become the beginning of our story. Then came an
-                    Instagram follow, a few messages, and conversations that
-                    slowly turned a familiar face into someone we couldn’t
-                    imagine not knowing. Then came the miles. With him at sea,
-                    we learned to love through long calls, quiet waits, missed
-                    moments, and precious reunions.
-                  </p>
-
-                  <p>
-                    The distance wasn’t always easy, but it made every moment
-                    together mean a little more. From that first glance to
-                    crossing oceans and countless little moments, we found our
-                    way to each other. And now, after all the waiting, we’re
-                    ready for the chapter where coming home means coming home to
-                    each other. A simple glance. A love across oceans. A
-                    lifetime together.
-                  </p>
+                  {story.paragraphs.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
                 </div>
 
                 {/* Bottom signature line */}
                 <div className="mt-8 flex items-center gap-4">
-                  <span className="h-px w-10 bg-[#691638]/20" />
+                  <span className="h-px w-10 bg-(--theme-primary)/20" />
 
                   <span
                     className="
                       serif-italic
                       text-[13px]
-                      text-[#691638]/55
+                      text-(--theme-primary)/55
                       sm:text-sm
                     "
                   >
-                    Aneena & Loyed
+                    {couple.namesJoined}
                   </span>
                 </div>
               </div>

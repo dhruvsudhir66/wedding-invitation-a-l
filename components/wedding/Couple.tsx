@@ -3,23 +3,24 @@
 import Image from "next/image";
 import { motion, useReducedMotion } from "framer-motion";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { weddingConfig } from "@/config/wedding";
 
 const people = [
   {
-    role: "The bride",
-    name: "Aneena Vincent",
-    image: "/images/aneena.jpeg",
-    family:
-      "Daughter of Vincent & Lilly and sister to Alwin. A close-knit family rooted in love, faith, and togetherness.",
-    work: "Works in technology, with a love for learning and creativity.",
+    role: weddingConfig.couple.bride.role,
+    name: weddingConfig.couple.bride.fullName,
+    image: weddingConfig.couple.bride.image,
+    family: weddingConfig.couple.bride.family,
+    work: weddingConfig.couple.bride.work,
+    pronoun: weddingConfig.couple.bride.pronoun,
   },
   {
-    role: "The groom",
-    name: "Loyed Varghese",
-    image: "/images/loyed.jpeg",
-    family:
-      "Son of Varghese & Ancy, and brother to Leanda. Rooted in the love, memories, and values of the family that shaped him.",
-    work: "Works as a Merchant Navy officer, travelling the seas while building a life grounded in family and purpose.",
+    role: weddingConfig.couple.groom.role,
+    name: weddingConfig.couple.groom.fullName,
+    image: weddingConfig.couple.groom.image,
+    family: weddingConfig.couple.groom.family,
+    work: weddingConfig.couple.groom.work,
+    pronoun: weddingConfig.couple.groom.pronoun,
   },
 ];
 
@@ -69,9 +70,9 @@ export default function Couple() {
 
       <div className="container-wedding relative z-10">
         <SectionHeading
-          eyebrow="Meet the couple"
-          title="Two lives, one beautiful beginning."
-          description="A little glimpse into the people behind the invitation."
+          eyebrow={weddingConfig.copy.couple.eyebrow}
+          title={weddingConfig.copy.couple.title}
+          description={weddingConfig.copy.couple.description}
         />
 
         {/* =====================================================
@@ -434,7 +435,7 @@ export default function Couple() {
                           text-[var(--terracotta)]
                         "
                     >
-                      {index === 0 ? "She" : "He"}
+                      {person.pronoun}
                     </p>
 
                     <h3
@@ -475,7 +476,7 @@ export default function Couple() {
                         text-[var(--terracotta)]
                       "
                   >
-                    Family
+                    {weddingConfig.copy.couple.familyLabel}
                   </p>
 
                   <p
@@ -504,7 +505,7 @@ export default function Couple() {
                         text-[var(--terracotta)]
                       "
                   >
-                    What we do
+                    {weddingConfig.copy.couple.workLabel}
                   </p>
 
                   <p
@@ -543,7 +544,7 @@ export default function Couple() {
                         text-[var(--muted)]/60
                       "
                   >
-                    Aneena & Loyed
+                    {weddingConfig.couple.namesJoined}
                   </span>
                 </div>
               </div>

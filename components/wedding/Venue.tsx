@@ -3,39 +3,10 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Church, MapPin } from "lucide-react";
+import { weddingConfig } from "@/config/wedding";
 
-const events = [
-  {
-    number: "01",
-    type: "Bethrothal",
-    time: "4:00 PM",
-    place: "St Francis Assisi Church",
-    description:
-      "We begin our betrothal surrounded by our families and loved ones, at the very place where we first met.",
-    mapsUrl: "https://maps.app.goo.gl/owMGgWLTWnmmyMat9",
-  },
-  {
-    number: "02",
-    type: "Reception",
-    time: "6:00 PM Onwards",
-    place: "Infant Jesus Church Parish hall",
-    description:
-      "An evening of dinner, conversation, music, dancing, and celebrating together.",
-    mapsUrl: "https://maps.app.goo.gl/FU5VgkeMbASUa4qz9",
-  },
-] as const;
-
-/*
-  Add, remove, or change colours here.
-  The colour section below automatically adapts.
-*/
-const bethrothalColors = [
-  "#C88C8D",
-  "#B87880",
-  "#edd9bc",
-  "#9B6975",
-  "#53015286",
-];
+const events = weddingConfig.events;
+const bethrothalColors = weddingConfig.palette;
 
 export default function Venue() {
   return (
@@ -58,7 +29,7 @@ export default function Venue() {
           className="
             absolute left-1/2 top-[14%] h-[620px] w-[620px]
             -translate-x-1/2 rounded-full
-            bg-[radial-gradient(circle,rgba(200,144,167,0.12)_0%,rgba(200,144,167,0.055)_34%,transparent_70%)]
+            bg-[radial-gradient(circle,rgba(var(--theme-accent-rgb),0.12)_0%,rgba(var(--theme-accent-rgb),0.055)_34%,transparent_70%)]
           "
         />
 
@@ -67,7 +38,7 @@ export default function Venue() {
           className="
             absolute -left-[180px] top-[38%] h-[500px] w-[500px]
             rounded-full
-            bg-[radial-gradient(circle,rgba(200,144,167,0.075)_0%,transparent_68%)]
+            bg-[radial-gradient(circle,rgba(var(--theme-accent-rgb),0.075)_0%,transparent_68%)]
           "
         />
 
@@ -75,7 +46,7 @@ export default function Venue() {
           className="
             absolute -right-[180px] top-[52%] h-[540px] w-[540px]
             rounded-full
-            bg-[radial-gradient(circle,rgba(200,144,167,0.065)_0%,transparent_68%)]
+            bg-[radial-gradient(circle,rgba(var(--theme-accent-rgb),0.065)_0%,transparent_68%)]
           "
         />
 
@@ -86,7 +57,7 @@ export default function Venue() {
         <div
           className="
             absolute inset-0 opacity-[0.022]
-            [background-image:radial-gradient(rgba(105,22,56,0.8)_0.5px,transparent_0.5px)]
+            [background-image:radial-gradient(rgba(var(--theme-primary-rgb),0.8)_0.5px,transparent_0.5px)]
             [background-size:7px_7px]
           "
         />
@@ -96,7 +67,7 @@ export default function Venue() {
           className="
             absolute left-1/2 top-[3%] hidden h-[78%] w-[86%]
             -translate-x-1/2 rounded-[50%_50%_12%_12%]
-            border border-[#691638]/[0.035]
+            border border-(--theme-primary)/[0.035]
             sm:block
           "
         />
@@ -105,7 +76,7 @@ export default function Venue() {
           className="
             absolute left-1/2 top-[4.5%] hidden h-[75%] w-[82%]
             -translate-x-1/2 rounded-[50%_50%_10%_10%]
-            border border-[#C890A7]/[0.04]
+            border border-(--theme-accent)/[0.04]
             sm:block
           "
         />
@@ -126,20 +97,20 @@ export default function Venue() {
           >
             <path
               d="M450 525 C340 430 155 355 155 190 C155 95 260 55 335 105 C385 138 420 190 450 225 C480 190 515 138 565 105 C640 55 745 95 745 190 C745 355 560 430 450 525"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="1.1"
               strokeLinecap="round"
               strokeDasharray="3 8"
             />
             <path
               d="M450 495 C365 415 190 340 190 210 C190 135 270 92 330 130 C380 162 420 216 450 252 C480 216 520 162 570 130 C630 92 710 135 710 210 C710 340 535 415 450 495"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.9"
               strokeLinecap="round"
             />
             <path
               d="M450 215 L462 227 L450 239 L438 227 Z"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="0.8"
             />
           </svg>
@@ -155,7 +126,7 @@ export default function Venue() {
               cx="180"
               cy="180"
               r="135"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="0.8"
               strokeDasharray="2 8"
             />
@@ -163,7 +134,7 @@ export default function Venue() {
               cx="180"
               cy="180"
               r="108"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
               strokeDasharray="1 6"
             />
@@ -171,18 +142,18 @@ export default function Venue() {
               cx="180"
               cy="180"
               r="80"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="0.55"
               strokeDasharray="2 9"
             />
             <path
               d="M180 50 C220 95 255 120 300 140 C255 160 220 195 180 310"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
             />
             <path
               d="M180 50 C140 95 105 120 60 140 C105 160 140 195 180 310"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
             />
           </svg>
@@ -198,7 +169,7 @@ export default function Venue() {
               cx="195"
               cy="195"
               r="150"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="0.8"
               strokeDasharray="2 8"
             />
@@ -206,7 +177,7 @@ export default function Venue() {
               cx="195"
               cy="195"
               r="120"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
               strokeDasharray="1 7"
             />
@@ -214,18 +185,18 @@ export default function Venue() {
               cx="195"
               cy="195"
               r="88"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="0.55"
               strokeDasharray="2 9"
             />
             <path
               d="M195 45 C240 105 285 135 345 155 C285 175 240 220 195 345"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
             />
             <path
               d="M195 45 C150 105 105 135 45 155 C105 175 150 220 195 345"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
             />
           </svg>
@@ -239,20 +210,20 @@ export default function Venue() {
           >
             <path
               d="M-20 190 C70 100 135 100 205 145 C280 193 345 180 520 35"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="1"
               strokeLinecap="round"
               strokeDasharray="3 9"
             />
             <path
               d="M-20 210 C70 120 140 115 210 160 C290 210 360 195 520 55"
-              stroke="#C890A7"
+              stroke="var(--theme-accent)"
               strokeWidth="0.7"
               strokeLinecap="round"
             />
             <path
               d="M-20 225 C80 140 145 135 215 175 C300 225 375 205 520 75"
-              stroke="#691638"
+              stroke="var(--theme-primary)"
               strokeWidth="0.45"
               strokeLinecap="round"
               strokeDasharray="1 7"
@@ -261,10 +232,10 @@ export default function Venue() {
 
           {/* Small constellation */}
           <div className="absolute right-[10%] top-[17%] h-28 w-28 opacity-[0.10]">
-            <span className="absolute left-3 top-10 h-1.5 w-1.5 rounded-full bg-[#C890A7]" />
-            <span className="absolute left-12 top-2 h-1 w-1 rounded-full bg-[#691638]" />
-            <span className="absolute right-2 top-14 h-1.5 w-1.5 rounded-full bg-[#C890A7]" />
-            <span className="absolute left-16 bottom-4 h-1 w-1 rounded-full bg-[#691638]" />
+            <span className="absolute left-3 top-10 h-1.5 w-1.5 rounded-full bg-(--theme-accent)" />
+            <span className="absolute left-12 top-2 h-1 w-1 rounded-full bg-(--theme-primary)" />
+            <span className="absolute right-2 top-14 h-1.5 w-1.5 rounded-full bg-(--theme-accent)" />
+            <span className="absolute left-16 bottom-4 h-1 w-1 rounded-full bg-(--theme-primary)" />
             <svg
               className="absolute inset-0 h-full w-full"
               viewBox="0 0 100 100"
@@ -272,13 +243,13 @@ export default function Venue() {
             >
               <path
                 d="M12 42 C35 22 58 18 88 52"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.6"
                 strokeDasharray="1 5"
               />
               <path
                 d="M45 10 C50 34 66 55 80 76"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.6"
                 strokeDasharray="1 5"
               />
@@ -304,19 +275,20 @@ export default function Venue() {
           transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
           className="mx-auto max-w-3xl text-center"
         >
-          <p className="text-[9px] uppercase tracking-[0.28em] text-[#691638]/50">
-            The celebration
+          <p className="text-[9px] uppercase tracking-[0.28em] text-(--theme-primary)/50">
+            {weddingConfig.copy.venue.eyebrow}
           </p>
 
-          <h2 className="mt-4 font-display text-4xl leading-[0.95] tracking-[-0.04em] text-[#691638] sm:text-5xl lg:text-6xl">
-            Two moments.
+          <h2 className="mt-4 font-display text-4xl leading-[0.95] tracking-[-0.04em] text-(--theme-primary) sm:text-5xl lg:text-6xl">
+            {weddingConfig.copy.venue.titleLead}
             <br />
-            <span className="serif-italic font-light">One celebration.</span>
+            <span className="serif-italic font-light">
+              {weddingConfig.copy.venue.titleAccent}
+            </span>
           </h2>
 
-          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-[#691638]/55 sm:text-[15px]">
-            From the quiet beauty of the church to an evening of celebration, we
-            would love to have you with us.
+          <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-(--theme-primary)/55 sm:text-[15px]">
+            {weddingConfig.copy.venue.description}
           </p>
         </motion.div>
 
@@ -336,7 +308,7 @@ export default function Venue() {
             className="
               pointer-events-none absolute -inset-8
               rounded-[50%]
-              bg-[radial-gradient(ellipse,rgba(200,144,167,0.11)_0%,rgba(200,144,167,0.045)_42%,transparent_72%)]
+              bg-[radial-gradient(ellipse,rgba(var(--theme-accent-rgb),0.11)_0%,rgba(var(--theme-accent-rgb),0.045)_42%,transparent_72%)]
             "
           />
 
@@ -345,7 +317,7 @@ export default function Venue() {
             className="
               pointer-events-none absolute -bottom-8 left-1/2 h-28 w-[70%]
               -translate-x-1/2 rounded-full
-              bg-[radial-gradient(ellipse,rgba(105,22,56,0.06)_0%,transparent_72%)]
+              bg-[radial-gradient(ellipse,rgba(var(--theme-primary-rgb),0.06)_0%,transparent_72%)]
             "
           />
 
@@ -353,13 +325,13 @@ export default function Venue() {
             className="
               relative mx-auto aspect-[4/3] w-full max-w-[720px]
               overflow-hidden rounded-[50%_50%_3%_3%]
-              border border-[#691638]/10 bg-[#eadbd6]
-              shadow-[0_18px_45px_rgba(105,22,56,0.07)]
+              border border-(--theme-primary)/10 bg-[#eadbd6]
+              shadow-[0_18px_45px_rgba(var(--theme-primary-rgb),0.07)]
             "
           >
             <Image
-              src="/images/church-thuruthipuram.webp"
-              alt="Church where the celebration begins"
+              src={weddingConfig.assets.church}
+              alt={weddingConfig.copy.venue.churchImageAlt}
               fill
               sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 88vw, 720px"
               quality={70}
@@ -409,17 +381,17 @@ export default function Venue() {
           <div
             className="
               absolute bottom-5 left-5 z-10
-              border border-white/35 bg-[#691638]/90
+              border border-white/35 bg-(--theme-primary)/90
               px-4 py-3
-              shadow-[0_8px_24px_rgba(105,22,56,0.10)]
+              shadow-[0_8px_24px_rgba(var(--theme-primary-rgb),0.10)]
               sm:bottom-8 sm:left-8
             "
           >
             <p className="text-[7px] uppercase tracking-[0.25em] text-white/55">
-              Where it begins
+              {weddingConfig.copy.venue.churchLabelEyebrow}
             </p>
             <p className="mt-1 font-display text-lg text-white sm:text-xl">
-              The Church
+              {weddingConfig.copy.venue.churchLabelTitle}
             </p>
           </div>
 
@@ -428,16 +400,16 @@ export default function Venue() {
             className="
               absolute -bottom-4 right-4 z-10
               flex items-center gap-2
-              border border-[#691638]/10
+              border border-(--theme-primary)/10
               bg-[#f8ebe6]
               px-4 py-3
-              shadow-[0_10px_26px_rgba(105,22,56,0.07)]
+              shadow-[0_10px_26px_rgba(var(--theme-primary-rgb),0.07)]
               sm:-bottom-5 sm:right-8
             "
           >
-            <MapPin size={13} strokeWidth={1.4} className="text-[#C890A7]" />
-            <span className="text-[8px] uppercase tracking-[0.18em] text-[#691638]/65">
-              Thuruthipuram
+            <MapPin size={13} strokeWidth={1.4} className="text-(--theme-accent)" />
+            <span className="text-[8px] uppercase tracking-[0.18em] text-(--theme-primary)/65">
+              {weddingConfig.location.churchArea}
             </span>
           </div>
         </motion.div>
@@ -455,7 +427,7 @@ export default function Venue() {
           {/* Mobile line */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute bottom-0 left-[13px] top-0 w-px bg-[#691638]/[0.07] lg:hidden"
+            className="pointer-events-none absolute bottom-0 left-[13px] top-0 w-px bg-(--theme-primary)/[0.07] lg:hidden"
           />
 
           {/* Mobile / tablet */}
@@ -473,7 +445,7 @@ export default function Venue() {
           <div className="relative hidden lg:block">
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2 bg-[#691638]/[0.07]"
+              className="pointer-events-none absolute bottom-0 left-1/2 top-0 w-px -translate-x-1/2 bg-(--theme-primary)/[0.07]"
             />
 
             <div className="space-y-10 xl:space-y-12">
@@ -512,11 +484,11 @@ export default function Venue() {
         {/* Separator */}
         <div className="mt-7 flex flex-col items-center sm:mt-9 lg:mt-10">
           <div className="flex w-full items-center justify-center">
-            <span className="h-px w-28 bg-[#691638]/[0.07]" />
-            <span className="mx-4 h-2 w-2 rotate-45 border border-[#C890A7]/30 bg-[#f8ebe6] sm:mx-6" />
-            <span className="h-px w-28 bg-[#691638]/[0.07]" />
+            <span className="h-px w-28 bg-(--theme-primary)/[0.07]" />
+            <span className="mx-4 h-2 w-2 rotate-45 border border-(--theme-accent)/30 bg-[#f8ebe6] sm:mx-6" />
+            <span className="h-px w-28 bg-(--theme-primary)/[0.07]" />
           </div>
-          <div className="mt-3 h-px w-5 bg-[#C890A7]/22" />
+          <div className="mt-3 h-px w-5 bg-(--theme-accent)/22" />
         </div>
 
         {/* =====================================================
@@ -551,7 +523,7 @@ export default function Venue() {
               pointer-events-none absolute left-1/2 top-1/2
               h-64 w-64 -translate-x-1/2 -translate-y-1/2
               rounded-full
-              bg-[radial-gradient(circle,rgba(200,144,167,0.10)_0%,rgba(200,144,167,0.035)_42%,transparent_70%)]
+              bg-[radial-gradient(circle,rgba(var(--theme-accent-rgb),0.10)_0%,rgba(var(--theme-accent-rgb),0.035)_42%,transparent_70%)]
             "
           />
 
@@ -567,7 +539,7 @@ export default function Venue() {
                 cx="155"
                 cy="155"
                 r="128"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.9"
                 strokeDasharray="2 7"
               />
@@ -575,7 +547,7 @@ export default function Venue() {
                 cx="155"
                 cy="155"
                 r="103"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.8"
                 strokeDasharray="1 6"
               />
@@ -583,7 +555,7 @@ export default function Venue() {
                 cx="155"
                 cy="155"
                 r="77"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.6"
                 strokeDasharray="2 8"
               />
@@ -591,28 +563,28 @@ export default function Venue() {
                 cx="155"
                 cy="155"
                 r="49"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.6"
               />
               <path
                 d="M155 27 C205 80 244 105 285 125 C245 155 205 185 155 283"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.7"
               />
               <path
                 d="M155 27 C105 80 66 105 25 125 C65 155 105 185 155 283"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.7"
               />
               <path
                 d="M155 78 C180 105 201 120 225 135 C201 151 180 170 155 232"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.7"
                 strokeDasharray="2 5"
               />
               <path
                 d="M155 78 C130 105 109 120 85 135 C109 151 130 170 155 232"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.7"
                 strokeDasharray="2 5"
               />
@@ -628,7 +600,7 @@ export default function Venue() {
                 cx="165"
                 cy="165"
                 r="135"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.8"
                 strokeDasharray="2 8"
               />
@@ -636,7 +608,7 @@ export default function Venue() {
                 cx="165"
                 cy="165"
                 r="108"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.7"
                 strokeDasharray="1 7"
               />
@@ -644,18 +616,18 @@ export default function Venue() {
                 cx="165"
                 cy="165"
                 r="79"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.6"
                 strokeDasharray="2 8"
               />
               <path
                 d="M165 30 C210 82 250 112 305 138 C250 165 210 202 165 300"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.8"
               />
               <path
                 d="M165 30 C120 82 80 112 25 138 C80 165 120 202 165 300"
-                stroke="#C890A7"
+                stroke="var(--theme-accent)"
                 strokeWidth="0.8"
               />
             </svg>
@@ -668,17 +640,17 @@ export default function Venue() {
             >
               <path
                 d="M65 108 C42 88 15 70 15 43 C15 23 37 12 53 23 C60 28 64 35 65 40 C66 35 70 28 77 23 C93 12 115 23 115 43 C115 70 88 88 65 108"
-                stroke="#691638"
+                stroke="var(--theme-primary)"
                 strokeWidth="0.9"
                 strokeDasharray="2 6"
               />
             </svg>
 
             <div className="absolute bottom-[12%] left-[10%] h-20 w-20 opacity-[0.09]">
-              <span className="absolute left-1 top-8 h-1.5 w-1.5 rounded-full bg-[#C890A7]" />
-              <span className="absolute left-9 top-2 h-1 w-1 rounded-full bg-[#691638]" />
-              <span className="absolute right-1 top-12 h-1.5 w-1.5 rounded-full bg-[#C890A7]" />
-              <span className="absolute left-12 bottom-1 h-1 w-1 rounded-full bg-[#691638]" />
+              <span className="absolute left-1 top-8 h-1.5 w-1.5 rounded-full bg-(--theme-accent)" />
+              <span className="absolute left-9 top-2 h-1 w-1 rounded-full bg-(--theme-primary)" />
+              <span className="absolute right-1 top-12 h-1.5 w-1.5 rounded-full bg-(--theme-accent)" />
+              <span className="absolute left-12 bottom-1 h-1 w-1 rounded-full bg-(--theme-primary)" />
               <svg
                 className="absolute inset-0 h-full w-full"
                 viewBox="0 0 80 80"
@@ -686,13 +658,13 @@ export default function Venue() {
               >
                 <path
                   d="M8 38 C25 20 45 17 72 45"
-                  stroke="#691638"
+                  stroke="var(--theme-primary)"
                   strokeWidth="0.6"
                   strokeDasharray="1 5"
                 />
                 <path
                   d="M37 8 C42 28 54 45 65 65"
-                  stroke="#C890A7"
+                  stroke="var(--theme-accent)"
                   strokeWidth="0.6"
                   strokeDasharray="1 5"
                 />
@@ -705,23 +677,25 @@ export default function Venue() {
             aria-hidden="true"
             className="
               pointer-events-none absolute inset-0 opacity-[0.018]
-              [background-image:radial-gradient(rgba(105,22,56,0.8)_0.5px,transparent_0.5px)]
+              [background-image:radial-gradient(rgba(var(--theme-primary-rgb),0.8)_0.5px,transparent_0.5px)]
               [background-size:7px_7px]
             "
           />
 
           <div className="relative z-10 mx-auto max-w-3xl text-center">
-            <p className="text-[9px] uppercase tracking-[0.28em] text-[#691638]/50">
-              The colour story
+            <p className="text-[9px] uppercase tracking-[0.28em] text-(--theme-primary)/50">
+            {weddingConfig.copy.venue.paletteEyebrow}
             </p>
 
-            <h3 className="mt-3 font-display text-3xl leading-tight tracking-[-0.03em] text-[#691638] sm:text-4xl">
-              Colours for our{" "}
-              <span className="serif-italic font-light">celebration.</span>
+            <h3 className="mt-3 font-display text-3xl leading-tight tracking-[-0.03em] text-(--theme-primary) sm:text-4xl">
+              {weddingConfig.copy.venue.paletteTitleLead}
+              <span className="serif-italic font-light">
+                {weddingConfig.copy.venue.paletteTitleAccent}
+              </span>
             </h3>
 
-            <p className="mx-auto mt-2 max-w-md text-xs leading-6 text-[#691638]/55 sm:text-sm">
-              A soft palette chosen for our Bethrothal.
+            <p className="mx-auto mt-2 max-w-md text-xs leading-6 text-(--theme-primary)/55 sm:text-sm">
+              {weddingConfig.copy.venue.paletteDescription}
             </p>
 
             <div className="mt-7 flex flex-wrap items-start justify-center gap-x-5 gap-y-5 sm:gap-x-7">
@@ -730,17 +704,17 @@ export default function Venue() {
                   <div
                     className="
                       relative flex h-11 w-11 items-center justify-center
-                      rounded-full border border-[#691638]/10
+                      rounded-full border border-(--theme-primary)/10
                       bg-[#F3E7E3]
-                      shadow-[0_5px_18px_rgba(105,22,56,0.045)]
+                      shadow-[0_5px_18px_rgba(var(--theme-primary-rgb),0.045)]
                       transition-transform duration-300
                       sm:h-[52px] sm:w-[52px]
                       motion-safe:group-hover:scale-105
                     "
                   >
-                    <span className="pointer-events-none absolute inset-[4px] rounded-full border border-[#C890A7]/20" />
+                    <span className="pointer-events-none absolute inset-[4px] rounded-full border border-(--theme-accent)/20" />
                     <span
-                      className="h-7 w-7 rounded-full shadow-[0_4px_14px_rgba(105,22,56,0.08)] sm:h-8 sm:w-8"
+                      className="h-7 w-7 rounded-full shadow-[0_4px_14px_rgba(var(--theme-primary-rgb),0.08)] sm:h-8 sm:w-8"
                       style={{ backgroundColor: color }}
                     />
                   </div>
@@ -748,10 +722,10 @@ export default function Venue() {
               ))}
             </div>
 
-            <div className="mx-auto mt-7 h-px w-10 bg-[#C890A7]/22" />
+            <div className="mx-auto mt-7 h-px w-10 bg-(--theme-accent)/22" />
 
-            <p className="mt-2 text-[8px] uppercase tracking-[0.24em] text-[#691638]">
-              Bethrothal palette
+            <p className="mt-2 text-[8px] uppercase tracking-[0.24em] text-(--theme-primary)">
+              {weddingConfig.copy.venue.paletteFooter}
             </p>
           </div>
         </motion.section>
@@ -773,11 +747,11 @@ function TimelineMarker({ desktop = false }: { desktop?: boolean }) {
       <span
         className={
           desktop
-            ? "absolute h-8 w-8 rotate-45 border border-[#C890A7]/30 bg-[#f8ebe6]"
-            : "absolute h-7 w-7 rotate-45 border border-[#C890A7]/30 bg-[#f8ebe6]"
+            ? "absolute h-8 w-8 rotate-45 border border-(--theme-accent)/30 bg-[#f8ebe6]"
+            : "absolute h-7 w-7 rotate-45 border border-(--theme-accent)/30 bg-[#f8ebe6]"
         }
       />
-      <span className="relative h-1.5 w-1.5 rotate-45 bg-[#C890A7]" />
+      <span className="relative h-1.5 w-1.5 rotate-45 bg-(--theme-accent)" />
     </div>
   );
 }
@@ -796,9 +770,9 @@ function StaticSparkle({
       aria-hidden="true"
       className={`pointer-events-none absolute ${className} ${size} opacity-[0.07]`}
     >
-      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-[#691638]" />
-      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-[#691638]" />
-      <span className="absolute left-1/2 top-1/2 h-[35%] w-[35%] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-[#C890A7]" />
+      <span className="absolute left-1/2 top-0 h-full w-px -translate-x-1/2 bg-(--theme-primary)" />
+      <span className="absolute left-0 top-1/2 h-px w-full -translate-y-1/2 bg-(--theme-primary)" />
+      <span className="absolute left-1/2 top-1/2 h-[35%] w-[35%] -translate-x-1/2 -translate-y-1/2 rotate-45 bg-(--theme-accent)" />
     </div>
   );
 }
@@ -823,16 +797,16 @@ function EventContent({
       <div
         className={`flex items-center gap-3 ${isRight ? "justify-end" : "justify-start"}`}
       >
-        <span className="text-[9px] uppercase tracking-[0.25em] text-[#C890A7]">
+        <span className="text-[9px] uppercase tracking-[0.25em] text-(--theme-accent)">
           {event.number}
         </span>
-        <span className="h-px w-8 bg-[#C890A7]/25" />
+        <span className="h-px w-8 bg-(--theme-accent)/25" />
       </div>
 
       <h3
         className={`
           mt-3 font-display text-3xl leading-none
-          tracking-[-0.035em] text-[#691638] sm:text-4xl
+          tracking-[-0.035em] text-(--theme-primary) sm:text-4xl
           ${isRight ? "text-right" : "text-left"}
         `}
       >
@@ -845,21 +819,21 @@ function EventContent({
           ${isRight ? "justify-end" : "justify-start"}
         `}
       >
-        <span className="text-[10px] uppercase tracking-[0.18em] text-[#691638]/65">
+        <span className="text-[10px] uppercase tracking-[0.18em] text-(--theme-primary)/65">
           {event.time}
         </span>
 
-        <span className="h-1 w-1 rounded-full bg-[#C890A7]" />
+        <span className="h-1 w-1 rounded-full bg-(--theme-accent)" />
 
-        <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-[#691638]/50">
-          <Church size={12} strokeWidth={1.3} className="text-[#C890A7]" />
+        <span className="inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.18em] text-(--theme-primary)/50">
+          <Church size={12} strokeWidth={1.3} className="text-(--theme-accent)" />
           {event.place}
         </span>
       </div>
 
       <p
         className={`
-          mt-4 text-xs leading-6 text-[#691638]/55 sm:text-sm
+          mt-4 text-xs leading-6 text-(--theme-primary)/55 sm:text-sm
           ${isRight ? "text-right" : "text-left"}
         `}
       >
@@ -873,12 +847,12 @@ function EventContent({
           rel="noopener noreferrer"
           className="
             group mt-4 inline-flex min-h-8 items-center gap-2
-            text-[9px] uppercase tracking-[0.2em] text-[#691638]/65
+            text-[9px] uppercase tracking-[0.2em] text-(--theme-primary)/65
             transition-colors duration-200
-            hover:text-[#691638]
+            hover:text-(--theme-primary)
           "
         >
-          Open location
+          {weddingConfig.copy.venue.mapsCta}
           <ArrowUpRight
             size={12}
             strokeWidth={1.4}

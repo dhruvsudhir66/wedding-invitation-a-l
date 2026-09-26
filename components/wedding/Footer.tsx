@@ -1,6 +1,10 @@
+import { weddingConfig } from "@/config/wedding";
+
 export default function Footer() {
+  const { couple, date, copy } = weddingConfig;
+
   return (
-    <footer className="relative overflow-hidden bg-[#F7F3ED] px-5 py-10 text-[#691638] sm:py-16">
+    <footer className="relative overflow-hidden bg-[#F7F3ED] px-5 py-10 text-[var(--theme-primary)] sm:py-16">
       {/* Subtle atmosphere */}
       <div
         className="
@@ -26,10 +30,10 @@ export default function Footer() {
               text-[10px]
               uppercase
               tracking-[0.32em]
-              text-[#691638]
+              text-[var(--theme-primary)]
             "
           >
-            Until forever
+            {copy.footer.eyebrow}
           </p>
 
           <h2
@@ -39,15 +43,15 @@ export default function Footer() {
               text-xl
               leading-[0.9]
               tracking-[-0.055em]
-              text-[#691638]
+              text-[var(--theme-primary)]
             "
           >
-            Aneena
+            {couple.bride.firstName}
             <span className="serif-italic font-light text-[#8F596C]">
               {" "}
               & &nbsp;
             </span>
-            Loyed
+            {couple.groom.firstName}
           </h2>
 
           <p
@@ -55,11 +59,11 @@ export default function Footer() {
               mt-6
               text-[10px]
               leading-6
-              text-[#691638]/55
+              text-[var(--theme-primary)]/55
               sm:text-[11px]
             "
           >
-            Sunday, 15 November 2026
+            {date.displayLong}
             <br />
           </p>
         </div>
@@ -73,7 +77,7 @@ export default function Footer() {
             items-center
             gap-3
             border-t
-            border-[#691638]/15
+            border-[var(--theme-primary)]/15
             pt-5
             text-center
             sm:mt-14
@@ -82,20 +86,20 @@ export default function Footer() {
           "
         >
           <a
-            href="https://wyvernstack.com"
+            href={copy.footer.creditUrl}
             target="_blank"
             rel="noreferrer"
             className="
               text-[9px]
               uppercase
               tracking-[0.2em]
-              text-[#691638]/65
+              text-[var(--theme-primary)]/65
               transition-colors
               duration-300
-              hover:text-[#691638]
+              hover:text-[var(--theme-primary)]
             "
           >
-            wyvernstack.com
+            {copy.footer.creditLabel}
           </a>
 
           <p
@@ -103,10 +107,10 @@ export default function Footer() {
               text-[8px]
               uppercase
               tracking-[0.18em]
-              text-[#691638]/40
+              text-[var(--theme-primary)]/40
             "
           >
-            © 2026 Wyvernstack
+            © {date.year} {copy.footer.copyrightName}
           </p>
         </div>
       </div>

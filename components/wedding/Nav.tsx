@@ -3,17 +3,13 @@
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
-
-const links = [
-  ["Story", "#story"],
-  ["Gallery", "#gallery"],
-  ["Venue", "#venue"],
-  ["RSVP", "#rsvp"],
-];
+import { getNavLinks, weddingConfig } from "@/config/wedding";
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const links = getNavLinks();
+  const { couple, date, assets } = weddingConfig;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,7 +77,7 @@ export default function Nav() {
 
           <motion.a
             href="#home"
-            aria-label="Aneena & Loyed — Home"
+            aria-label={`${couple.namesJoined} — Home`}
             animate={{
               scale: scrolled ? 0.88 : 1,
               opacity: scrolled ? 0.82 : 1,
@@ -118,8 +114,8 @@ export default function Nav() {
             "
           >
             <img
-              src="/images/logo.png"
-              alt="Aneena & Loyed"
+              src={assets.logo}
+              alt={couple.namesJoined}
               className="
                 h-full
                 w-full
@@ -169,7 +165,7 @@ export default function Nav() {
               md:flex
             "
           >
-            {links.map(([label, href]) => (
+            {links.map(({ label, href }) => (
               <a
                 key={href}
                 href={href}
@@ -302,7 +298,7 @@ export default function Nav() {
                   w-[380px]
                   -translate-x-1/2
                   rounded-full
-                  bg-[#C890A7]/[0.07]
+                  bg-(--theme-accent)/[0.07]
                   blur-[110px]
                 "
                 animate={{
@@ -333,7 +329,7 @@ export default function Nav() {
                   text-[#f7f3ed]/[0.025]
                 "
               >
-                A&L
+                {couple.initials}
               </div>
 
               {/* Orbital line */}
@@ -349,7 +345,7 @@ export default function Nav() {
                   rotate-[18deg]
                   rounded-[50%]
                   border
-                  border-[#C890A7]/[0.08]
+                  border-(--theme-accent)/[0.08]
                 "
                 animate={{
                   rotate: [18, 22, 18],
@@ -392,7 +388,7 @@ export default function Nav() {
               <a
                 href="#home"
                 onClick={() => setOpen(false)}
-                aria-label="Aneena & Loyed — Home"
+                aria-label={`${couple.namesJoined} — Home`}
                 className="
                   flex
                   h-[58px]
@@ -407,8 +403,8 @@ export default function Nav() {
                 "
               >
                 <img
-                  src="/images/logo.png"
-                  alt="Aneena & Loyed"
+                  src={assets.logo}
+                  alt={couple.namesJoined}
                   className="
                     h-full
                     w-full
@@ -458,7 +454,7 @@ export default function Nav() {
                 sm:px-8
               "
             >
-              {links.map(([label, href], index) => (
+              {links.map(({ label, href }, index) => (
                 <motion.a
                   key={href}
                   href={href}
@@ -567,9 +563,9 @@ export default function Nav() {
                 sm:right-8
               "
             >
-              <span>Aneena & Loyed</span>
+              <span>{couple.namesJoined}</span>
 
-              <span>15 · 11 · 2026</span>
+              <span>{date.displayShort}</span>
             </motion.div>
           </motion.div>
         )}

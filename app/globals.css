@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
 :root {
+  --theme-primary: #691638;
+  --theme-accent: #c890a7;
+  --theme-primary-rgb: 105, 22, 56;
+  --theme-accent-rgb: 200, 144, 167;
   --dusty-pink: #c9aaa7;
   --light-pink: #ead3d0;
   --off-white: #f7f3ed;

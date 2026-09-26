@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import Reveal from "@/components/ui/Reveal";
+import { weddingConfig } from "@/config/wedding";
 
-const TARGET_TIME = new Date("2026-11-15T11:00:00+05:30").getTime();
+const TARGET_TIME = new Date(weddingConfig.date.countdownTarget).getTime();
 
 type RemainingTime = {
   days: number;
@@ -120,7 +121,7 @@ function CountdownTimer() {
         sm:gap-6
         md:gap-10
       "
-      aria-label="Countdown to 15 November 2026"
+        aria-label={`Countdown to ${weddingConfig.date.display}`}
     >
       {values.map(([label, value], index) => (
         <div key={label} className="flex items-center">
@@ -134,7 +135,7 @@ function CountdownTimer() {
                   leading-none
                   tracking-[-0.06em]
                   tabular-nums
-                  text-[#691638]
+                  text-(--theme-primary)
                   sm:text-[52px]
                   md:text-[64px]
                 "
@@ -150,7 +151,7 @@ function CountdownTimer() {
                 font-medium
                 uppercase
                 tracking-[0.24em]
-                text-[#691638]
+                text-(--theme-primary)
                 sm:text-[8px]
                 md:text-[9px]
               "
@@ -167,7 +168,7 @@ function CountdownTimer() {
                 font-display
                 text-xl
                 font-light
-                text-[#C890A7]/60
+                text-(--theme-accent)/60
                 sm:mx-2
                 sm:text-2xl
                 md:mx-4
@@ -209,7 +210,7 @@ export default function Countdown() {
         [contain:layout_paint]
         bg-[#f8ebe6]
         py-16
-        text-[#691638]
+        text-(--theme-primary)
         sm:py-20
         md:py-24
       "
@@ -230,7 +231,7 @@ export default function Countdown() {
           -translate-x-1/2
           -translate-y-1/2
           rounded-full
-          bg-[#C890A7]/[0.12]
+          bg-(--theme-accent)/[0.12]
           blur-[50px] sm:blur-[70px] sm:blur-[110px]
           sm:h-[520px]
           sm:w-[520px]
@@ -260,7 +261,7 @@ export default function Countdown() {
           h-72
           w-72
           rounded-full
-          bg-[#C890A7]/[0.08]
+          bg-(--theme-accent)/[0.08]
           blur-[65px] sm:blur-[100px]
         "
         animate={
@@ -289,7 +290,7 @@ export default function Countdown() {
           h-80
           w-80
           rounded-full
-          bg-[#C890A7]/[0.07]
+          bg-(--theme-accent)/[0.07]
           blur-[50px] sm:blur-[70px] sm:blur-[110px]
         "
         animate={
@@ -323,7 +324,7 @@ export default function Countdown() {
             w-[280px]
             rotate-[-16deg]
             rounded-[45%]
-            bg-[#C890A7]/[0.13]
+            bg-(--theme-accent)/[0.13]
             blur-[1px]
             sm:h-24
             sm:w-[360px]
@@ -350,7 +351,7 @@ export default function Countdown() {
             w-[230px]
             rotate-[-13deg]
             rounded-full
-            bg-[#691638]/[0.09]
+            bg-(--theme-primary)/[0.09]
             blur-[0.5px]
             sm:w-[300px]
           "
@@ -402,7 +403,7 @@ export default function Countdown() {
             w-[330px]
             rotate-[-12deg]
             rounded-[50%]
-            bg-[#C890A7]/[0.11]
+            bg-(--theme-accent)/[0.11]
             blur-[2px]
             sm:h-28
             sm:w-[420px]
@@ -430,7 +431,7 @@ export default function Countdown() {
             -translate-x-1/2
             rotate-[-4deg]
             rounded-full
-            bg-[#691638]/[0.08]
+            bg-(--theme-primary)/[0.08]
             blur-[1px]
             sm:w-40
           "
@@ -461,7 +462,7 @@ export default function Countdown() {
               className="
                 absolute
                 rounded-full
-                bg-[#C890A7]/40
+                bg-(--theme-accent)/40
                 blur-[0.5px]
               "
               style={{
@@ -509,7 +510,7 @@ export default function Countdown() {
           w-56
           rounded-full
           border
-          border-[#C890A7]/[0.10]
+          border-(--theme-accent)/[0.10]
           sm:h-72
           sm:w-72
         "
@@ -538,7 +539,7 @@ export default function Countdown() {
           w-56
           rounded-full
           border
-          border-[#C890A7]/[0.10]
+          border-(--theme-accent)/[0.10]
           sm:h-72
           sm:w-72
         "
@@ -564,7 +565,7 @@ export default function Countdown() {
           absolute
           inset-0
           opacity-[0.035]
-          [background-image:radial-gradient(rgba(105,22,56,0.55)_0.5px,transparent_0.5px)]
+          [background-image:radial-gradient(rgba(var(--theme-primary-rgb),0.55)_0.5px,transparent_0.5px)]
           [background-size:5px_5px]
         "
       />
@@ -578,7 +579,7 @@ export default function Countdown() {
           <div className="relative">
             {/* Top ornament */}
             <div className="mb-9 flex items-center justify-center gap-4 sm:mb-11">
-              <span className="h-px w-16 bg-[#C890A7]/25 sm:w-24" />
+              <span className="h-px w-16 bg-(--theme-accent)/25 sm:w-24" />
 
               <motion.div
                 animate={{
@@ -596,7 +597,7 @@ export default function Countdown() {
                   w-3
                   rotate-45
                   border
-                  border-[#C890A7]/65
+                  border-(--theme-accent)/65
                 "
               >
                 <span
@@ -610,12 +611,12 @@ export default function Countdown() {
                     -translate-y-1/2
                     -rotate-45
                     rounded-full
-                    bg-[#C890A7]/70
+                    bg-(--theme-accent)/70
                   "
                 />
               </motion.div>
 
-              <span className="h-px w-16 bg-[#C890A7]/25 sm:w-24" />
+              <span className="h-px w-16 bg-(--theme-accent)/25 sm:w-24" />
             </div>
 
             {/* =================================================
@@ -639,11 +640,11 @@ export default function Countdown() {
                   font-medium
                   uppercase
                   tracking-[0.32em]
-                  text-[#691638]
+                  text-(--theme-primary)
                   sm:text-[10px]
                 "
               >
-                Until we say I do
+                {weddingConfig.copy.countdown.eyebrow}
               </motion.p>
 
               <motion.h2
@@ -667,12 +668,12 @@ export default function Countdown() {
                   text-[38px]
                   leading-[0.94]
                   tracking-[-0.045em]
-                  text-[#691638]
+                  text-(--theme-primary)
                   sm:text-[46px]
                   md:text-[56px]
                 "
               >
-                The countdown is on.
+                {weddingConfig.copy.countdown.title}
               </motion.h2>
 
               <motion.p
@@ -691,12 +692,12 @@ export default function Countdown() {
                   font-600
                   uppercase
                   leading-6
-                  text-[#691638]/65
+                  text-(--theme-primary)/65
                   sm:max-w-md
                   sm:text-[10px]
                 "
               >
-                Soon, two hearts become one beautiful beginning.
+                {weddingConfig.copy.countdown.description}
               </motion.p>
             </div>
 
@@ -742,7 +743,7 @@ export default function Countdown() {
                   -translate-x-1/2
                   -translate-y-1/2
                   rounded-full
-                  bg-[#C890A7]/[0.10]
+                  bg-(--theme-accent)/[0.10]
                   blur-[50px] sm:blur-[70px]
                   sm:h-40
                 "
@@ -777,7 +778,7 @@ export default function Countdown() {
                 sm:mt-12
               "
             >
-              <span className="h-px w-8 bg-[#C890A7]/25 sm:w-12" />
+              <span className="h-px w-8 bg-(--theme-accent)/25 sm:w-12" />
 
               <span
                 className="
@@ -786,14 +787,14 @@ export default function Countdown() {
                   font-medium
                   uppercase
                   tracking-[0.25em]
-                  text-[#691638]
+                  text-(--theme-primary)
                   sm:text-[9px]
                 "
               >
-                15 November 2026
+                {weddingConfig.date.display}
               </span>
 
-              <span className="h-px w-8 bg-[#C890A7]/25 sm:w-12" />
+              <span className="h-px w-8 bg-(--theme-accent)/25 sm:w-12" />
             </motion.div>
 
             {/* =================================================
@@ -817,7 +818,7 @@ export default function Countdown() {
               className="mt-10 flex justify-center sm:mt-12"
             >
               <div className="flex items-center gap-3">
-                <span className="h-px w-10 bg-[#C890A7]/20" />
+                <span className="h-px w-10 bg-(--theme-accent)/20" />
 
                 <motion.span
                   animate={
@@ -837,11 +838,11 @@ export default function Countdown() {
                     h-1.5
                     w-1.5
                     rotate-45
-                    bg-[#C890A7]/70
+                    bg-(--theme-accent)/70
                   "
                 />
 
-                <span className="h-px w-10 bg-[#C890A7]/20" />
+                <span className="h-px w-10 bg-(--theme-accent)/20" />
               </div>
             </motion.div>
           </div>
